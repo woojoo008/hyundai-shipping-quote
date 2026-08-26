@@ -525,6 +525,77 @@ SECTIONS.forEach(sec=>{
 
 // items that use tap-to-count quantity instead of photo capture
 const norm = s => s.replace(/[\s.,&()':]/g,'').toLowerCase();
+const DIM_DATA = {
+  '장식장소': {w:30, d:16, h:42, realcbm:0.519, qty:1, loadcbm:0.669},
+  '소파테이블': {w:39, d:20, h:16, realcbm:0.321, qty:1, loadcbm:0.414},
+  '전자피아노': {w:53, d:14, h:31, realcbm:0.592, qty:1, loadcbm:0.764},
+  '장식장중': {w:35, d:16, h:47, realcbm:0.677, qty:1, loadcbm:0.874},
+  '스탠딩에어컨': {w:22, d:22, h:71, realcbm:0.884, qty:1, loadcbm:1.141},
+  '마사지안마의자': {w:30, d:46, h:44, realcbm:1.562, qty:1, loadcbm:2.015},
+  '장식장대': {w:47, d:18, h:59, realcbm:1.284, qty:1, loadcbm:1.657},
+  '소파옆협탁': {w:20, d:22, h:24, realcbm:0.272, qty:1, loadcbm:0.391},
+  '런닝머신': {w:28, d:59, h:33, realcbm:1.403, qty:1, loadcbm:1.529},
+  '서랍장3단': {w:40, d:18, h:28, realcbm:0.519, qty:1, loadcbm:0.825},
+  '커피테이블': {w:44, d:22, h:17, realcbm:0.423, qty:1, loadcbm:0.724},
+  '흔들의자': {w:28, d:35, h:39, realcbm:0.983, qty:1, loadcbm:1.269},
+  '서랍장5단': {w:31, d:18, h:43, realcbm:0.617, qty:1, loadcbm:0.982},
+  'upright피아노': {w:59, d:24, h:47, realcbm:1.712, qty:1, loadcbm:3.048},
+  '콘솔': {w:47, d:16, h:31, realcbm:0.6, qty:1, loadcbm:0.774},
+  '에어컨벽걸이': {w:33, d:8, h:12, realcbm:0.185, qty:1, loadcbm:0.61},
+  '소파1인armchair': {w:35, d:35, h:33, realcbm:1.04, qty:1, loadcbm:1.404},
+  '그랜드피아노대': {w:59, d:79, h:40, realcbm:4.797, qty:1, loadcbm:6.189},
+  '소파2인loveseat': {w:59, d:35, h:33, realcbm:1.753, qty:1, loadcbm:2.367},
+  '그랜드피아노중': {w:59, d:69, h:39, realcbm:4.085, qty:1, loadcbm:5.27},
+  'tv65기준': {w:64, d:6, h:35, realcbm:0.346, qty:1, loadcbm:0.508},
+  '소파3인': {w:83, d:35, h:33, realcbm:2.467, qty:1, loadcbm:3.33},
+  '베이비그랜드피아노': {w:59, d:59, h:39, realcbm:3.493, qty:1, loadcbm:4.506},
+  'tv캐비닛': {w:59, d:16, h:18, realcbm:0.437, qty:1, loadcbm:0.708},
+  'ck침대': {w:72, d:84, h:23, realcbm:3.579, qty:1, loadcbm:4.403},
+  '돌침대': {w:59, d:79, h:23, realcbm:2.758, qty:1, loadcbm:3.558},
+  '협탁': {w:22, d:18, h:32, realcbm:0.326, qty:1, loadcbm:0.434},
+  'k침대': {w:70, d:78, h:23, realcbm:3.231, qty:1, loadcbm:3.975},
+  '아기침대crib': {w:28, d:51, h:39, realcbm:1.433, qty:1, loadcbm:1.849},
+  'q침대': {w:59, d:72, h:23, realcbm:2.514, qty:1, loadcbm:3.092},
+  '화장대': {w:39, d:18, h:55, realcbm:0.993, qty:1, loadcbm:1.282},
+  'd침대': {w:55, d:72, h:23, realcbm:2.344, qty:1, loadcbm:2.883},
+  's침대': {w:43, d:72, h:23, realcbm:1.832, qty:1, loadcbm:2.254},
+  '문갑': {w:35, d:16, h:44, realcbm:0.634, qty:1, loadcbm:0.818},
+  '이층침대': {w:39, d:79, h:48, realcbm:3.805, qty:1, loadcbm:4.681},
+  '고가구코너장': {w:28, d:28, h:59, realcbm:1.19, qty:1, loadcbm:1.535},
+  '고가구문갑': {w:39, d:18, h:44, realcbm:0.795, qty:1, loadcbm:1.025},
+  '고가구궤짝': {w:35, d:20, h:34, realcbm:0.612, qty:1, loadcbm:0.79},
+  '책상중분해ox': {w:47, d:24, h:30, realcbm:0.871, qty:1, loadcbm:1.123},
+  '사무용의자': {w:24, d:24, h:43, realcbm:0.637, qty:1, loadcbm:0.822},
+  '장롱주니어장': {w:39, d:22, h:71, realcbm:1.567, qty:1, loadcbm:2.022},
+  '서재태이블': {w:47, d:24, h:30, realcbm:0.871, qty:1, loadcbm:1.123},
+  '책상대분해ox': {w:59, d:28, h:30, realcbm:1.275, qty:1, loadcbm:1.645},
+  '일반의자': {w:20, d:22, h:40, realcbm:0.453, qty:1, loadcbm:0.584},
+  'folding간이의자': {w:18, d:20, h:22, realcbm:0.204, qty:1, loadcbm:0.226},
+  '책장소': {w:24, d:12, h:35, realcbm:0.259, qty:1, loadcbm:0.335},
+  '책상용작은서랍장': {w:20, d:18, h:24, realcbm:0.222, qty:1, loadcbm:0.313},
+  '컴퓨터책상': {w:43, d:24, h:30, realcbm:0.797, qty:1, loadcbm:1.028},
+  '책장중': {w:31, d:14, h:47, realcbm:0.525, qty:1, loadcbm:0.677},
+  '책장대': {w:35, d:16, h:71, realcbm:1.023, qty:1, loadcbm:1.32},
+  '허리높이김치냉장고': {w:35, d:26, h:35, realcbm:0.82, qty:1, loadcbm:1.057},
+  '부페테이블': {w:59, d:18, h:31, realcbm:0.847, qty:1, loadcbm:1.389},
+  'standing김치냉장고': {w:24, d:28, h:71, realcbm:1.228, qty:1, loadcbm:1.584},
+  '그릇장': {w:35, d:18, h:71, realcbm:1.151, qty:1, loadcbm:1.485},
+  '식탁2인table': {w:28, d:28, h:12, realcbm:0.242, qty:1, loadcbm:0.312},
+  '양문형냉장고대형': {w:36, d:31, h:71, realcbm:2.039, qty:1, loadcbm:2.63},
+  '식탁4인table': {w:47, d:31, h:12, realcbm:0.45, qty:1, loadcbm:0.58},
+  '양문형냉장고중형': {w:33, d:30, h:69, realcbm:1.758, qty:1, loadcbm:2.267},
+  '식탁6인table': {w:59, d:35, h:12, realcbm:0.638, qty:1, loadcbm:0.823},
+  '일반형냉장고': {w:28, d:28, h:67, realcbm:1.352, qty:1, loadcbm:1.744},
+  '식탁8인table': {w:79, d:39, h:12, realcbm:0.951, qty:1, loadcbm:1.227},
+  '소형냉장고': {w:20, d:22, h:33, realcbm:0.374, qty:1, loadcbm:0.482},
+  '식탁2인chair': {w:18, d:20, h:33, realcbm:0.306, qty:2, loadcbm:0.789},
+  '식탁4인chair': {w:18, d:20, h:33, realcbm:0.306, qty:4, loadcbm:1.577},
+  '식탁6인chair': {w:18, d:20, h:33, realcbm:0.306, qty:6, loadcbm:2.366},
+  '식탁8인chair': {w:18, d:20, h:33, realcbm:0.306, qty:8, loadcbm:3.155},
+  '스타일러': {w:18, d:24, h:73, realcbm:0.811, qty:1, loadcbm:1.047},
+  '세탁기': {w:24, d:26, h:44, realcbm:0.706, qty:1, loadcbm:1.144},
+  '건조기': {w:24, d:26, h:44, realcbm:0.706, qty:1, loadcbm:1.144},
+};
 const QTY_LABELS = [
   '액자(대):72inch/Lx2','액자(중):36inch/M','액자(소):18inch/S','도자기','카페트/돗자리','장식품 (스탠딩)','조각','스피커',
   '전기장판','램프','가습기','이불','거울','옷 & 의류','스탠드',
@@ -1006,23 +1077,61 @@ async function submitQuote(){
   }
 
   const statusEl = document.getElementById('submit-status');
-
-  // build item list (text + html-with-photo) for the auto email
   const itemsText = state.items.map(lineFor).join('\n');
-  const rowsHtml = await Promise.all(state.items.map(async (it)=>{
-    const cat = findCat(it.catId);
-    if(cat?.mode==='qty'){
-      return `<tr><td colspan="2" style="padding:6px 0;font-size:13px;">· ${escapeHtml(it.label)} — 수량 ${it.qty}개</td></tr>`;
-    }
-    const r = cbmRange(effectiveCbm(it, cat));
-    const thumb = await shrinkForEmail(it.photo, 160, 0.55);
-    const img = thumb ? `<img src="${thumb}" width="60" height="60" style="border-radius:6px;object-fit:cover;">` : '';
+
+  // ---- group photo items by category (for the spreadsheet-style table) ----
+  const photoEntries = state.items.filter(it => findCat(it.catId)?.mode !== 'qty');
+  const groups = {};
+  photoEntries.forEach(it=>{
+    if(!groups[it.catId]) groups[it.catId] = [];
+    groups[it.catId].push(it);
+  });
+
+  const photoRows = await Promise.all(Object.values(groups).map(async (entries)=>{
+    const cat = findCat(entries[0].catId);
+    const count = entries.length;
+    const dim = DIM_DATA[norm(cat.label)];
+    const lastPhoto = entries[entries.length-1].photo; // full-res original capture
+    const thumb = await shrinkForEmail(lastPhoto, 140, 0.55);
+    const img = thumb ? `<a href="${lastPhoto}" target="_blank"><img src="${thumb}" width="70" height="70" style="border-radius:6px;object-fit:cover;"></a>` : '';
+    const w = dim ? dim.w+'"' : '-';
+    const d = dim ? dim.d+'"' : '-';
+    const h = dim ? dim.h+'"' : '-';
+    const realTotal = dim ? (dim.realcbm*count).toFixed(3) : '-';
+    const loadTotal = dim ? (dim.loadcbm*count).toFixed(3) : '-';
+    const noteTxt = entries.some(e=>e.assembly) ? entries.map(e=>e.assembly?`(${e.assembly})`:'').join(' ') : '';
     return `<tr>
       <td style="padding:6px 8px 6px 0;">${img}</td>
-      <td style="padding:6px 0;font-size:13px;">${escapeHtml(it.label)}<br><span style="color:#888;">${r.low} ~ ${r.high} cbm${it.note?' · '+escapeHtml(it.note):''}</span></td>
+      <td style="padding:6px 8px;font-size:13px;">${escapeHtml(cat.label)} ${noteTxt}</td>
+      <td style="padding:6px 8px;font-size:13px;text-align:center;">${w}</td>
+      <td style="padding:6px 8px;font-size:13px;text-align:center;">${d}</td>
+      <td style="padding:6px 8px;font-size:13px;text-align:center;">${h}</td>
+      <td style="padding:6px 8px;font-size:13px;text-align:center;">${realTotal}</td>
+      <td style="padding:6px 8px;font-size:13px;text-align:center;">${count}</td>
+      <td style="padding:6px 8px;font-size:13px;text-align:center;font-weight:bold;">${loadTotal}</td>
     </tr>`;
   }));
-  const itemsHtml = `<table cellpadding="0" cellspacing="0">${rowsHtml.join('')}</table>`;
+  const itemsHtml = `<table cellpadding="0" cellspacing="0" style="border-collapse:collapse;width:100%;">
+    <tr style="background:#f1ede4;">
+      <th style="padding:6px 8px;font-size:12px;text-align:left;">사진</th>
+      <th style="padding:6px 8px;font-size:12px;text-align:left;">아이템</th>
+      <th style="padding:6px 8px;font-size:12px;">가로</th>
+      <th style="padding:6px 8px;font-size:12px;">세로</th>
+      <th style="padding:6px 8px;font-size:12px;">높이</th>
+      <th style="padding:6px 8px;font-size:12px;">실포장CBM</th>
+      <th style="padding:6px 8px;font-size:12px;">수량</th>
+      <th style="padding:6px 8px;font-size:12px;">적재CBM</th>
+    </tr>
+    ${photoRows.join('')}
+  </table>`;
+
+  // ---- quantity-checked items (separate list, no photos/volume) ----
+  const qtyEntries = state.items.filter(it => findCat(it.catId)?.mode === 'qty');
+  const qtyItemsHtml = qtyEntries.length
+    ? `<table cellpadding="0" cellspacing="0" style="border-collapse:collapse;width:100%;">
+        ${qtyEntries.map(it=>`<tr><td style="padding:5px 0;font-size:13px;">· ${escapeHtml(it.label)}</td><td style="padding:5px 0;font-size:13px;text-align:right;font-weight:bold;">${it.qty}개</td></tr>`).join('')}
+      </table>`
+    : '<p style="font-size:13px;color:#888;">수량체크 항목이 없습니다.</p>';
 
   const templateParams = {
     to_email: 'RICKY@CYHDS.COM',
@@ -1035,9 +1144,10 @@ async function submitQuote(){
     item_count: state.items.length,
     items_text: itemsText,
     items_html: itemsHtml,
+    qty_items_html: qtyItemsHtml,
   };
 
-  let staffOk = false, customerOk = null; // null = not attempted (template not configured)
+  let staffOk = false, customerOk = null;
 
   if(EMAILJS_PUBLIC_KEY && EMAILJS_SERVICE_ID && EMAILJS_TEMPLATE_ID && window.emailjs){
     try{
