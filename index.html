@@ -377,6 +377,59 @@ const EMAILJS_PUBLIC_KEY = 'VtQ7iTht-GUlJUTpK';   // Account 탭의 Public Key
 const EMAILJS_SERVICE_ID = 'service_a4yursi';   // Email Services 에서 만든 서비스 ID
 const EMAILJS_TEMPLATE_ID = 'template_zkkn5zd';  // Email Templates 에서 만든 템플릿 ID (담당자 수신용)
 const EMAILJS_CUSTOMER_TEMPLATE_ID = 'template_v1w9h6s';  // 고객 접수확인 메일용 템플릿 ID
+
+// ===== Cloudinary 설정 (사진 원본을 업로드하고 링크만 이메일에 담기 위함) =====
+const CLOUDINARY_CLOUD_NAME = 'sbzwquxg';
+const CLOUDINARY_UPLOAD_PRESET = 'a0bvqm1d';
+async function uploadToCloudinary(dataUrl){
+  try{
+    const fd = new FormData();
+    fd.append('file', dataUrl);
+    fd.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+    const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, {
+      method:'POST', body: fd
+    });
+    const data = await res.json();
+    return data.secure_url || null;
+  }catch(err){
+    console.error('cloudinary upload failed', err);
+    return null;
+  }
+}
+
+// build one HTML gallery page (all customer photos) and upload it as a single file,
+// so the staff email can link to ONE page instead of one link per photo.
+async function uploadGalleryPage(photoEntries, quoteId){
+  if(photoEntries.length===0) return null;
+  const cards = photoEntries.map(it=>{
+    const url = it.cloudUrl || it.photo;
+    if(!url) return '';
+    return `<div style="display:inline-block;margin:8px;text-align:center;vertical-align:top;">
+      <img src="${url}" style="width:220px;height:220px;object-fit:cover;border-radius:8px;display:block;">
+      <div style="font-size:13px;margin-top:4px;">${escapeHtml(it.label)}</div>
+    </div>`;
+  }).join('');
+  const html = `<!DOCTYPE html><html><head><meta charset="utf-8">
+    <title>견적 ${quoteId} 촬영 사진</title></head>
+    <body style="font-family:system-ui,sans-serif;padding:20px;">
+      <h2>견적 ${quoteId} — 촬영 사진 (${photoEntries.length}장)</h2>
+      ${cards}
+    </body></html>`;
+  try{
+    const blob = new Blob([html], {type:'text/html'});
+    const fd = new FormData();
+    fd.append('file', blob, `gallery-${quoteId}.html`);
+    fd.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+    const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/raw/upload`, {
+      method:'POST', body: fd
+    });
+    const data = await res.json();
+    return data.secure_url || null;
+  }catch(err){
+    console.error('gallery upload failed', err);
+    return null;
+  }
+}
 if(EMAILJS_PUBLIC_KEY && window.emailjs){
   emailjs.init({publicKey: EMAILJS_PUBLIC_KEY});
 }
@@ -910,10 +963,11 @@ cameraInput.addEventListener('change', async (e)=>{
   let entry;
   try{
     const dataUrl = await resizeImage(file, 700, 0.6);
-    entry = {catId:cat.id, label:cat.label, cbm:cat.cbm, photo:dataUrl};
+    const cloudUrl = await uploadToCloudinary(dataUrl);
+    entry = {catId:cat.id, label:cat.label, cbm:cat.cbm, photo:dataUrl, cloudUrl};
   }catch(err){
     console.error(err);
-    entry = {catId:cat.id, label:cat.label, cbm:cat.cbm, photo:null};
+    entry = {catId:cat.id, label:cat.label, cbm:cat.cbm, photo:null, cloudUrl:null};
   }
   state.items.push(entry);
   cameraInput.value = '';
@@ -1086,14 +1140,13 @@ async function submitQuote(){
     if(!groups[it.catId]) groups[it.catId] = [];
     groups[it.catId].push(it);
   });
+  const galleryUrl = await uploadGalleryPage(photoEntries, id);
 
-  const photoRows = await Promise.all(Object.values(groups).map(async (entries)=>{
+  const photoRows = Object.values(groups).map((entries)=>{
     const cat = findCat(entries[0].catId);
     const count = entries.length;
     const dim = DIM_DATA[norm(cat.label)];
-    const lastPhoto = entries[entries.length-1].photo; // full-res original capture
-    const thumb = await shrinkForEmail(lastPhoto, 140, 0.55);
-    const img = thumb ? `<a href="${lastPhoto}" target="_blank"><img src="${thumb}" width="70" height="70" style="border-radius:6px;object-fit:cover;"></a>` : '';
+    const photoTag = entries.some(e=>e.cloudUrl || e.photo) ? '📷' : '-';
     const w = dim ? dim.w+'"' : '-';
     const d = dim ? dim.d+'"' : '-';
     const h = dim ? dim.h+'"' : '-';
@@ -1101,7 +1154,7 @@ async function submitQuote(){
     const loadTotal = dim ? (dim.loadcbm*count).toFixed(3) : '-';
     const noteTxt = entries.some(e=>e.assembly) ? entries.map(e=>e.assembly?`(${e.assembly})`:'').join(' ') : '';
     return `<tr>
-      <td style="padding:6px 8px 6px 0;">${img}</td>
+      <td style="padding:6px 8px;font-size:13px;text-align:center;">${photoTag}</td>
       <td style="padding:6px 8px;font-size:13px;">${escapeHtml(cat.label)} ${noteTxt}</td>
       <td style="padding:6px 8px;font-size:13px;text-align:center;">${w}</td>
       <td style="padding:6px 8px;font-size:13px;text-align:center;">${d}</td>
@@ -1110,7 +1163,7 @@ async function submitQuote(){
       <td style="padding:6px 8px;font-size:13px;text-align:center;">${count}</td>
       <td style="padding:6px 8px;font-size:13px;text-align:center;font-weight:bold;">${loadTotal}</td>
     </tr>`;
-  }));
+  });
   const itemsHtml = `<table cellpadding="0" cellspacing="0" style="border-collapse:collapse;width:100%;">
     <tr style="background:#f1ede4;">
       <th style="padding:6px 8px;font-size:12px;text-align:left;">사진</th>
@@ -1145,6 +1198,7 @@ async function submitQuote(){
     items_text: itemsText,
     items_html: itemsHtml,
     qty_items_html: qtyItemsHtml,
+    gallery_url: galleryUrl || '(사진 업로드 실패 — 링크 없음)',
   };
 
   let staffOk = false, customerOk = null;
