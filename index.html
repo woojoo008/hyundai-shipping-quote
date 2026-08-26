@@ -1,0 +1,1087 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+<title>현대해운 - 이사화물 견적</title>
+<style>
+  :root{
+    --navy:#152341;
+    --navy-2:#223458;
+    --orange:#e8622c;
+    --orange-dark:#c74f1f;
+    --cream:#faf6ef;
+    --paper:#ffffff;
+    --ink:#1c1f26;
+    --muted:#767a85;
+    --line:#e4ddd0;
+    --danger:#c0392b;
+    --success:#2f8f5b;
+    --yellow:#ffd23f;
+    --radius:14px;
+    font-size:16px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--cream);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic","Segoe UI",sans-serif;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+  }
+  .app{max-width:480px;margin:0 auto;min-height:100vh;background:var(--cream);display:flex;flex-direction:column;}
+
+  /* Header / brand */
+  .brand{
+    background:var(--navy);
+    color:#fff;
+    padding:18px 20px 16px;
+    position:relative;
+    overflow:hidden;
+  }
+  .brand::after{
+    content:"";
+    position:absolute; right:-30px; top:-30px;
+    width:140px;height:140px;border-radius:50%;
+    background:radial-gradient(circle,rgba(232,98,44,.35),transparent 70%);
+  }
+  .brand-name{font-size:13px;letter-spacing:.14em;color:#f0b48f;font-weight:600;text-transform:uppercase;}
+  .brand-title{
+    font-family:Georgia,"Times New Roman",serif;
+    font-size:22px;font-weight:700;margin-top:4px;letter-spacing:-.01em;
+  }
+  .brand-manager{font-size:12px;color:rgba(255,255,255,.7);margin-top:4px;text-decoration:none;display:inline-block;}
+  .steps{display:flex;gap:6px;padding:14px 20px 0;background:var(--navy);}
+  .step-dot{flex:1;display:flex;flex-direction:column;gap:6px;}
+  .step-dot .bar{height:3px;border-radius:3px;background:rgba(255,255,255,.22);overflow:hidden;}
+  .step-dot .bar span{display:block;height:100%;width:0%;background:var(--orange);transition:width .35s ease;}
+  .step-dot.done .bar span{width:100%;}
+  .step-dot.active .bar span{width:100%;}
+  .step-dot label{font-size:10.5px;color:rgba(255,255,255,.65);letter-spacing:.02em;}
+  .step-dot.active label{color:#fff;font-weight:600;}
+  .steps-pad{height:16px;background:var(--navy);}
+
+  /* Content */
+  .screen{flex:1;padding:22px 20px 100px;display:none;}
+  .screen.active{display:block;animation:fade .25s ease;}
+  @keyframes fade{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+
+  .eyebrow{font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--orange-dark);font-weight:700;margin-bottom:6px;}
+  h1{font-family:Georgia,"Times New Roman",serif;font-size:24px;margin:0 0 6px;color:var(--navy);letter-spacing:-.01em;}
+  .sub{color:var(--muted);font-size:14px;line-height:1.5;margin-bottom:22px;}
+
+  .field{margin-bottom:16px;}
+  .field label{display:block;font-size:13px;font-weight:600;color:var(--navy-2);margin-bottom:6px;}
+  .field input{
+    width:100%;padding:13px 14px;border-radius:10px;border:1.5px solid var(--line);
+    font-size:15.5px;background:var(--paper);color:var(--ink);
+  }
+  .field input:focus{outline:none;border-color:var(--navy-2);}
+  .field.error input{border-color:var(--danger);background:#fdf3f2;}
+  .err-msg{display:none;color:var(--danger);font-size:12.5px;margin-top:5px;}
+  .field.error .err-msg{display:block;}
+
+  .btn{
+    display:block;width:100%;text-align:center;padding:15px 18px;border-radius:11px;
+    font-size:15.5px;font-weight:700;border:none;cursor:pointer;letter-spacing:.01em;
+  }
+  .btn-yellow{background:var(--yellow);color:#3a2c00;box-shadow:0 3px 0 #d9ac1f;}
+  .btn-yellow:active{transform:translateY(2px);box-shadow:none;}
+  .btn-ghost{background:transparent;color:var(--navy-2);border:1.5px solid var(--line);margin-top:10px;}
+  .btn-navy{background:var(--navy);color:#fff;}
+  .bottom-bar{
+    position:fixed;bottom:0;left:0;right:0;
+    max-width:480px;margin:0 auto;background:linear-gradient(180deg,rgba(250,246,239,0),var(--cream) 30%);
+    padding:18px 20px 20px;
+  }
+
+  .banner{background:#fdf3f2;border:1px solid #f2c9c2;color:var(--danger);font-size:13px;padding:10px 12px;border-radius:10px;margin-bottom:16px;display:none;}
+  .banner.show{display:block;}
+
+  /* item grid (legacy, unused after section redesign but kept for safety) */
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+
+  .cap-note{font-size:12.5px;color:var(--muted);background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:14px;line-height:1.5;}
+
+  .search-wrap{margin-bottom:14px;}
+  .search-wrap input{
+    width:100%;padding:11px 14px;border-radius:10px;border:1.5px solid var(--line);
+    font-size:14.5px;background:#fff;
+  }
+  .search-wrap input:focus{outline:none;border-color:var(--navy-2);}
+
+  .sec-tabs{display:flex;gap:8px;overflow-x:auto;margin-bottom:16px;padding-bottom:2px;-webkit-overflow-scrolling:touch;}
+  .sec-tabs::-webkit-scrollbar{display:none;}
+  .sec-tab{
+    flex:0 0 auto;padding:9px 16px;border-radius:24px;border:none;
+    background:#efece3;color:#8a8477;font-size:13.5px;font-weight:700;white-space:nowrap;cursor:pointer;
+  }
+  .sec-tab.active{background:var(--navy);color:#fff;}
+
+  .item-cards{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+  .item-card{
+    background:#fff;border-radius:16px;border:1px solid #edeae1;
+    box-shadow:0 1px 2px rgba(20,20,20,.04);
+    padding:14px 8px 12px;display:flex;flex-direction:column;align-items:center;
+    text-align:center;cursor:pointer;position:relative;min-height:106px;justify-content:center;gap:8px;
+  }
+  .item-card.qty-card{min-height:132px;cursor:default;}
+  .item-card:active{transform:scale(.97);}
+  .item-card .icon{font-size:28px;line-height:1;display:flex;align-items:center;justify-content:center;}
+  .item-card .icon img{width:44px;height:44px;border-radius:10px;object-fit:cover;}
+  .item-card .icon svg.licon{color:#2b2f38;flex-shrink:0;}
+  .item-card .lbl{font-size:11.5px;font-weight:700;color:var(--ink);line-height:1.3;word-break:keep-all;}
+  .item-card .qty{
+    position:absolute;top:7px;right:7px;background:var(--orange);color:#fff;
+    font-size:10px;font-weight:800;border-radius:20px;min-width:18px;height:18px;
+    display:flex;align-items:center;justify-content:center;padding:0 5px;
+  }
+
+  /* quantity-mode cards */
+  .item-card.qty-card{padding:14px 8px 10px;gap:6px;}
+  .item-card.qty-card.active{border-color:var(--orange);background:#fffaf3;}
+  .item-card.qty-card .icon svg.licon{color:#a39c8a;}
+  .item-card.qty-card.active .icon svg.licon{color:var(--orange-dark);}
+  .qty-stepper{
+    display:flex;align-items:center;justify-content:center;gap:12px;margin-top:4px;
+    background:#f4f1e9;border-radius:20px;padding:4px 8px;width:100%;
+  }
+  .qty-stepper .step{
+    width:24px;height:24px;border-radius:50%;border:none;background:#fff;
+    box-shadow:0 1px 2px rgba(20,20,20,.12);
+    font-size:16px;font-weight:800;color:var(--navy-2);cursor:pointer;
+    display:flex;align-items:center;justify-content:center;padding:0;line-height:1;flex-shrink:0;
+  }
+  .qty-stepper .step.plus{color:var(--orange-dark);}
+  .qty-stepper .step:disabled{opacity:.35;cursor:default;box-shadow:none;}
+  .qty-stepper .num{font-size:15px;font-weight:800;color:var(--ink);min-width:16px;text-align:center;}
+  .empty-hint{text-align:center;color:var(--muted);font-size:13px;padding:24px 10px;}
+  .sticky-count{
+    position:sticky;top:0;z-index:5;background:var(--cream);padding:2px 0 10px;
+    display:flex;justify-content:space-between;align-items:center;font-size:12.5px;color:var(--navy-2);
+  }
+  .sticky-count b{color:var(--orange-dark);}
+
+  /* review list */
+  .rev-card{background:var(--paper);border:1.5px solid var(--line);border-radius:12px;padding:14px;margin-bottom:16px;}
+  .rev-card h3{margin:0 0 10px;font-size:13px;color:var(--navy);text-transform:uppercase;letter-spacing:.06em;}
+  .rev-row{display:flex;justify-content:space-between;font-size:13.5px;padding:5px 0;border-bottom:1px dashed var(--line);}
+  .rev-row:last-child{border-bottom:none;}
+  .rev-row .k{color:var(--muted);}
+  .rev-row .v{font-weight:600;color:var(--ink);text-align:right;}
+
+  .item-row{display:flex;gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line);}
+  .item-row:last-child{border-bottom:none;}
+  .item-row img{width:44px;height:44px;border-radius:8px;object-fit:cover;background:#f1ede4;flex-shrink:0;}
+  .rev-icon-wrap{width:44px;height:44px;border-radius:8px;background:#f1ede4;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
+  .rev-icon-wrap svg.licon{width:24px;height:24px;color:#5c5747;}
+  .item-row .info{flex:1;}
+  .item-row .info .n{font-size:13.5px;font-weight:600;}
+  .item-row .info .m{font-size:12px;color:var(--muted);}
+  .item-row .cuft{font-size:13px;font-weight:700;color:var(--orange-dark);white-space:nowrap;text-align:right;}
+  .item-row .cuft.qty-col{color:var(--navy-2);font-size:14px;}
+
+
+  /* confirmation */
+  .stamp-wrap{display:flex;justify-content:center;margin:6px 0 26px;}
+  .stamp{
+    width:150px;height:150px;border-radius:50%;
+    border:3px dashed var(--orange);
+    display:flex;align-items:center;justify-content:center;flex-direction:column;
+    transform:rotate(-8deg);color:var(--orange-dark);text-align:center;
+  }
+  .stamp .t1{font-size:11px;letter-spacing:.14em;font-weight:700;}
+  .stamp .t2{font-family:Georgia,serif;font-size:20px;font-weight:700;margin:4px 0;}
+  .stamp .t3{font-size:9.5px;letter-spacing:.08em;font-family:'SFMono-Regular',Consolas,monospace;}
+
+  .voice{font-size:13.5px;color:var(--navy-2);background:#fff;border:1px solid var(--line);border-radius:10px;padding:12px 14px;line-height:1.55;margin-bottom:16px;}
+
+  .contact-card{background:#fff;border:1.5px solid var(--line);border-radius:14px;overflow:hidden;margin-top:8px;}
+  .contact-card-title{font-size:13px;color:var(--navy-2);font-weight:600;padding:14px 16px 10px;}
+  .contact-row{display:flex;align-items:center;gap:12px;padding:13px 16px;border-top:1px solid var(--line);text-decoration:none;color:inherit;}
+  .contact-ico{font-size:20px;width:32px;text-align:center;flex-shrink:0;}
+  .contact-body{flex:1;}
+  .contact-body .ck{font-size:11.5px;color:var(--muted);}
+  .contact-body .cv{font-size:14.5px;font-weight:700;color:var(--navy);}
+  .contact-arrow{font-size:20px;color:#c8c2b3;}
+
+  input[type=file]{display:none;}
+  .foot-note{font-size:11.5px;color:var(--muted);text-align:center;margin-top:10px;line-height:1.5;}
+
+  .modal-overlay{position:fixed;inset:0;background:rgba(20,18,12,.45);display:flex;align-items:center;justify-content:center;z-index:50;padding:20px;}
+  .modal-overlay.hidden{display:none;}
+  .modal-card{background:#fff;border-radius:16px;padding:22px 20px;width:100%;max-width:340px;text-align:center;}
+  .modal-title{font-size:15.5px;font-weight:700;color:var(--navy);margin-bottom:6px;}
+  .modal-sub{font-size:12.5px;color:var(--muted);line-height:1.5;margin-bottom:16px;}
+  .modal-btns{display:flex;gap:10px;}
+  .modal-btn{flex:1;padding:13px 8px;border-radius:11px;border:1.5px solid var(--line);background:#fff;font-size:14px;font-weight:700;cursor:pointer;}
+  .modal-btn.o{border-color:var(--success);color:var(--success);}
+  .modal-btn.x{border-color:var(--danger);color:var(--danger);}
+  .assembly-tag{
+    position:absolute;bottom:6px;left:6px;font-size:9.5px;font-weight:800;border-radius:6px;
+    padding:1px 5px;background:#eef7f0;color:var(--success);
+  }
+  .assembly-tag.x{background:#fdf1ef;color:var(--danger);}
+</style>
+</head>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<body>
+<div class="app">
+
+  <div class="brand">
+    <div class="brand-name">Hyundai Shipping USA</div>
+    <div class="brand-title">이사화물 견적 신청</div>
+    <a class="brand-manager" href="tel:319-660-0001">이우주 팀장 / 319-660-0001</a>
+  </div>
+  <div class="steps">
+    <div class="step-dot active" data-step="1"><div class="bar"><span></span></div><label>정보입력</label></div>
+    <div class="step-dot" data-step="2"><div class="bar"><span></span></div><label>물품촬영</label></div>
+    <div class="step-dot" data-step="3"><div class="bar"><span></span></div><label>견적확인</label></div>
+    <div class="step-dot" data-step="4"><div class="bar"><span></span></div><label>제출완료</label></div>
+  </div>
+  <div class="steps-pad"></div>
+
+  <!-- STEP 1 -->
+  <div class="screen active" id="screen-1">
+    <div class="eyebrow">Step 1</div>
+    <h1>고객 정보를 입력해 주세요</h1>
+    <div class="sub">정확한 견적을 위해 아래 정보를 모두 입력해 주세요.</div>
+    <div class="banner" id="s1-banner">입력하신 정보를 다시 확인해 주세요. 잘못되었거나 비어있는 항목이 있습니다.</div>
+
+    <div class="field" id="f-name">
+      <label>여권 내 성함</label>
+      <input type="text" id="in-name" placeholder="예: HONG GILDONG" autocomplete="name">
+      <div class="err-msg">여권에 기재된 영문 성함을 입력해 주세요.</div>
+    </div>
+    <div class="field" id="f-email">
+      <label>Email 주소</label>
+      <input type="email" id="in-email" placeholder="example@email.com" autocomplete="email">
+      <div class="err-msg">올바른 이메일 주소를 입력해 주세요.</div>
+    </div>
+    <div class="field" id="f-phone">
+      <label>미국 내 전화번호</label>
+      <input type="tel" id="in-phone" placeholder="예: 319-660-0001" inputmode="numeric" maxlength="12">
+      <div class="err-msg">숫자 10자리의 미국 전화번호를 입력해 주세요.</div>
+    </div>
+    <div class="field" id="f-zip">
+      <label>출발지 ZIP CODE</label>
+      <input type="text" id="in-zip" placeholder="예: 90220" inputmode="numeric" maxlength="5">
+      <div class="err-msg">5자리 ZIP CODE를 입력해 주세요.</div>
+    </div>
+    <div class="field" id="f-dest">
+      <label>도착지 도시명 혹은 zip code</label>
+      <input type="text" id="in-dest" placeholder="예: 서울특별시 강남구 또는 06134">
+      <div class="err-msg">도착지역을 입력해 주세요.</div>
+    </div>
+  </div>
+
+  <!-- STEP 2 -->
+  <div class="screen" id="screen-2">
+    <div class="eyebrow">Step 2</div>
+    <h1>운송 물품을 촬영해 주세요</h1>
+    <div class="cap-note">사진 아이콘이 있는 카드는 눌러서 촬영하면 부피가 자동 측정돼요. 작은 소품·잡화 카드는 눌러서 수량만 체크하면 돼요(왼쪽 위 − 버튼으로 수량 조절).</div>
+
+    <div class="search-wrap">
+      <input type="text" id="item-search" placeholder="물품 이름으로 검색 (예: 소파, 냉장고)">
+    </div>
+
+    <div class="sec-tabs" id="sec-tabs"></div>
+    <div class="sticky-count">현재 공간 촬영 <b id="sec-count">0</b>건 · 전체 <b id="all-count">0</b>건</div>
+    <div class="item-cards" id="item-list"></div>
+  </div>
+
+  <!-- STEP 3 -->
+  <div class="screen" id="screen-3">
+    <div class="eyebrow">Step 3</div>
+    <h1>견적 내역을 확인해 주세요</h1>
+    <div class="sub">촬영하신 물품과 예상 부피예요. 이상이 없으면 아래에서 제출해 주세요.</div>
+
+    <div class="rev-card">
+      <h3>고객 정보</h3>
+      <div id="rev-customer"></div>
+    </div>
+
+    <div class="rev-card">
+      <h3>촬영 물품 (<span id="rev-count">0</span>건)</h3>
+      <div id="rev-items"></div>
+    </div>
+  </div>
+
+  <!-- STEP 4 -->
+  <div class="screen" id="screen-4">
+    <div class="eyebrow">Step 4</div>
+    <h1>접수가 완료되었습니다</h1>
+    <div class="sub" id="submit-status">담당자에게 자동으로 전송 중이에요…</div>
+
+    <div class="stamp-wrap">
+      <div class="stamp">
+        <div class="t1">RECEIVED</div>
+        <div class="t2" id="quote-id">HD-000000</div>
+        <div class="t3">HYUNDAI SHIPPING USA</div>
+      </div>
+    </div>
+
+    <div class="contact-card">
+      <div class="contact-card-title">언제든지 편히 궁금하신 점 말씀 부탁 드립니다.</div>
+      <a class="contact-row" id="contact-tel" href="tel:319-660-0001">
+        <div class="contact-ico">📞</div>
+        <div class="contact-body"><div class="ck">전화 혹은 문자</div><div class="cv">319-660-0001</div></div>
+        <div class="contact-arrow">›</div>
+      </a>
+      <a class="contact-row" id="contact-email" href="mailto:ricky@cyhds.com">
+        <div class="contact-ico">✉️</div>
+        <div class="contact-body"><div class="ck">이메일</div><div class="cv">ricky@cyhds.com</div></div>
+        <div class="contact-arrow">›</div>
+      </a>
+      <a class="contact-row" id="contact-kakao" href="kakaotalk://">
+        <div class="contact-ico">💬</div>
+        <div class="contact-body"><div class="ck">카카오톡 ID</div><div class="cv">HDSUSA</div></div>
+        <div class="contact-arrow">›</div>
+      </a>
+    </div>
+    <button class="btn btn-navy" id="btn-done" style="margin-top:18px;">완료</button>
+  </div>
+
+  <div class="bottom-bar" id="bar-1">
+    <button class="btn btn-yellow" id="btn-1-next">견적</button>
+  </div>
+  <div class="bottom-bar" id="bar-2" style="display:none;">
+    <button class="btn btn-yellow" id="btn-2-next" disabled>견적서 확인 (<span id="bar2-count">0</span>건 촬영됨)</button>
+  </div>
+  <div class="bottom-bar" id="bar-3" style="display:none;">
+    <button class="btn btn-yellow" id="btn-3-next">견적 신청</button>
+    <button class="btn btn-ghost" id="btn-3-back">물품 다시 촬영하기</button>
+  </div>
+
+  <input type="file" id="camera-input" accept="image/*" capture="environment">
+
+  <div class="modal-overlay hidden" id="assembly-modal">
+    <div class="modal-card">
+      <div class="modal-title" id="assembly-modal-title">분해 가능 여부</div>
+      <div class="modal-sub">사진 촬영이 완료됐어요. 이 가구는 분해가 가능한가요?</div>
+      <div class="modal-btns">
+        <button class="modal-btn o" id="assembly-btn-o">O · 분해 가능</button>
+        <button class="modal-btn x" id="assembly-btn-x">X · 분해 불가</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== EmailJS 설정 =====
+// https://www.emailjs.com 에서 무료 가입 후, 아래 3개 값을 채워 넣어야
+// 4페이지 도착 시 RICKY@CYHDS.COM 으로 자동 이메일이 발송됩니다.
+// (미설정 상태에서는 자동발송이 실행되지 않고 안내 문구만 표시됩니다.)
+const EMAILJS_PUBLIC_KEY = 'VtQ7iTht-GUlJUTpK';   // Account 탭의 Public Key
+const EMAILJS_SERVICE_ID = 'service_a4yursi';   // Email Services 에서 만든 서비스 ID
+const EMAILJS_TEMPLATE_ID = 'template_zkkn5zd';  // Email Templates 에서 만든 템플릿 ID (담당자 수신용)
+const EMAILJS_CUSTOMER_TEMPLATE_ID = 'template_v1w9h6s';  // 고객 접수확인 메일용 템플릿 ID
+if(EMAILJS_PUBLIC_KEY && window.emailjs){
+  emailjs.init({publicKey: EMAILJS_PUBLIC_KEY});
+}
+
+const SECTIONS = [
+  {id:'living', name:'거실', items:[
+    {label:'장식장(소)', cbm:0.669, icon:'wardrobe', size:'sm'},
+    {label:'장식장(중)', cbm:0.874, icon:'wardrobe', size:'md'},
+    {label:'장식장(대)', cbm:1.657, icon:'wardrobe', size:'lg'},
+    {label:'서랍장(3단)', cbm:0.825, icon:'drawer-chest', size:'sm'},
+    {label:'서랍장(5단)', cbm:0.982, icon:'drawer-chest', size:'md'},
+    {label:'소파(1인:arm chair)', cbm:1.404, icon:'armchair', size:'sm'},
+    {label:'소파(2인:love seat)', cbm:2.367, icon:'sofa', size:'md'},
+    {label:'소파(3인)', cbm:3.33, icon:'sofa', size:'lg'},
+    {label:'소파테이블', cbm:0.414, icon:'console-table'},
+    {label:'스탠딩 에어컨', cbm:1.141, icon:'standing-ac'},
+    {label:'소파옆 협탁', cbm:0.391, icon:'side-table'},
+    {label:'커피 테이블', cbm:0.724, icon:'coffee-table2'},
+    {label:'그랜드피아노 (대)', cbm:6.189, icon:'piano', size:'xl'},
+    {label:'그랜드피아노 (중)', cbm:5.27, icon:'piano', size:'lg'},
+    {label:'베이비 그랜드피아노', cbm:4.506, icon:'piano', size:'lg'},
+    {label:'upright 피아노', cbm:3.048, icon:'piano', size:'md'},
+    {label:'전자피아노', cbm:0.764, icon:'piano', size:'sm'},
+    {label:'마사지(안마)의자', cbm:2.015, icon:'massage-chair'},
+    {label:'런닝머신', cbm:1.529, icon:'treadmill'},
+    {label:'흔들의자', cbm:1.269, icon:'rocking-chair'},
+    {label:'콘솔', cbm:0.774, icon:'console'},
+    {label:"액자(대):72inch/Lx2", icon:'image'},
+    {label:'액자(중):36inch/M', icon:'image'},
+    {label:'액자(소):18inch/S', icon:'image'},
+    {label:'도자기', icon:'vase'},
+    {label:'카페트/돗자리', icon:'rug'},
+    {label:'장식품 (스탠딩)', icon:'figurine'},
+    {label:'조각', icon:'landmark'},
+    {label:'스피커', icon:'speaker'},
+    {label:"TV (65'기준)", cbm:0.508, icon:'tv'},
+    {label:'TV 캐비닛', cbm:0.708, icon:'tv-cabinet'},
+  ]},
+  {id:'bedroom', name:'침실', items:[
+    {label:'CK침대', cbm:4.403, icon:'bed', size:'xl'},
+    {label:'K침대', cbm:3.975, icon:'bed', size:'lg'},
+    {label:'Q침대', cbm:3.092, icon:'bed', size:'md'},
+    {label:'D침대', cbm:2.883, icon:'bed', size:'sm'},
+    {label:'s침대', cbm:2.254, icon:'bed', size:'sm'},
+    {label:'이층침대', cbm:4.681, icon:'bed', size:'lg'},
+    {label:'돌 침대', cbm:3.558, icon:'bed', size:'lg'},
+    {label:'(아기) 침대, CRIB', cbm:1.849, icon:'crib'},
+    {label:'화장대', cbm:1.282, icon:'vanity'},
+    {label:'전기장판', icon:'heating-pad'},
+    {label:'문갑', cbm:0.818, icon:'chest'},
+    {label:'고가구 (코너장)', cbm:1.535, icon:'corner-cabinet'},
+    {label:'고가구 (문갑)', cbm:1.025, icon:'antique-chest'},
+    {label:'고가구 (궤짝)', cbm:0.79, icon:'trunk'},
+    {label:'협탁', cbm:0.434, icon:'side-table'},
+    {label:'옷 & 의류', icon:'shirt'},
+    {label:'이불', icon:'duvet'},
+    {label:'거울', icon:'mirror'},
+    {label:'램프', icon:'lamp'},
+    {label:'스탠드', icon:'lamp-floor'},
+    {label:'가습기', icon:'humidifier'},
+  ]},
+  {id:'study', name:'서재/학생방', items:[
+    {label:'책상(중):분해(O,X)', cbm:1.123, icon:'desk', size:'md', needsAssembly:true},
+    {label:'책상(대):분해(O,X)', cbm:1.645, icon:'desk', size:'lg', needsAssembly:true},
+    {label:'책장 (소)', cbm:0.335, icon:'bookshelf', size:'sm'},
+    {label:'책장 (중)', cbm:0.677, icon:'bookshelf', size:'md'},
+    {label:'책장 (대)', cbm:1.32, icon:'bookshelf', size:'lg'},
+    {label:'사무용 의자', cbm:0.822, icon:'office-chair'},
+    {label:'일반 의자', cbm:0.584, icon:'plain-chair'},
+    {label:'책상용 작은 서랍장', cbm:0.313, icon:'archive'},
+    {label:'컴퓨터', icon:'laptop'},
+    {label:'프린터', icon:'printer'},
+    {label:'장롱 (주니어장)', cbm:2.022, icon:'wardrobe', size:'xl'},
+    {label:'Folding 간이의자', cbm:0.226, icon:'folding-chair'},
+    {label:'컴퓨터 책상', cbm:1.028, icon:'computer-desk'},
+    {label:'LP, CD, DVD', icon:'disc'},
+    {label:'레고,Figure', icon:'lego'},
+    {label:'서재 태이블', cbm:1.123, icon:'reading-table'},
+    {label:'책', icon:'book'},
+    {label:'문구류 및 잡화', icon:'pencil'},
+    {label:'서류 및 파일', icon:'folder'},
+  ]},
+  {id:'kitchen', name:'부엌', items:[
+    {label:'허리높이 김치냉장고', cbm:1.057, icon:'refrigerator', size:'sm'},
+    {label:'standing 김치냉장고', cbm:1.584, icon:'refrigerator', size:'md'},
+    {label:'식탁 2인 Table', cbm:0.312, icon:'dining-table2', size:'sm'},
+    {label:'식탁 4인 Table', cbm:0.58, icon:'dining-table2', size:'md'},
+    {label:'식탁 6인 Table', cbm:0.823, icon:'dining-table2', size:'lg'},
+    {label:'식탁 8인 Table', cbm:1.227, icon:'dining-table2', size:'xl'},
+    {label:'식탁 2인 Chair', cbm:0.789, icon:'dining-chair2', size:'sm'},
+    {label:'식탁 4인 Chair', cbm:1.577, icon:'dining-chair2', size:'sm'},
+    {label:'식탁 6인 Chair', cbm:2.366, icon:'dining-chair2', size:'md'},
+    {label:'식탁 8인 Chair', cbm:3.155, icon:'dining-chair2', size:'lg'},
+    {label:'그릇', icon:'bowl'},
+    {label:'전기밥솥', icon:'rice-cooker'},
+    {label:'커피머신', icon:'coffee'},
+    {label:'냄비', icon:'soup'},
+    {label:'부엌잡화', icon:'basket'},
+    {label:'주방기구', icon:'utensils'},
+    {label:'부페 테이블', cbm:1.389, icon:'buffet'},
+    {label:'그릇 장', cbm:1.485, icon:'display-cabinet'},
+    {label:'양문형 냉장고(대형)', cbm:2.63, icon:'refrigerator', size:'xl'},
+    {label:'양문형 냉장고(중형)', cbm:2.267, icon:'refrigerator', size:'lg'},
+    {label:'일반형 냉장고', cbm:1.744, icon:'refrigerator', size:'md'},
+    {label:'소형 냉장고', cbm:0.482, icon:'refrigerator', size:'sm'},
+    {label:'전자레인지', icon:'microwave'},
+    {label:'정수기', icon:'dispenser'},
+    {label:'교자상', icon:'low-table'},
+    {label:'식기세척기', icon:'washing-machine'},
+    {label:'식기건조기', icon:'washing-machine'},
+  ]},
+  {id:'utility', name:'다용도실/기타', items:[
+    {label:'스타일러', cbm:1.047, icon:'styler'},
+    {label:'세탁기', cbm:1.144, icon:'washing-machine'},
+    {label:'건조기', cbm:1.144, icon:'washing-machine'},
+    {label:'신발', icon:'footprints'},
+    {label:'욕실용품', icon:'bathtub'},
+    {label:'골프용품', icon:'golf'},
+    {label:'자전거', icon:'bike'},
+    {label:'등산용품', icon:'mountain'},
+    {label:'캠핑장비', icon:'tent'},
+    {label:'전기히터', icon:'heater'},
+    {label:'진공청소기', icon:'wind'},
+    {label:'선풍기', icon:'fan'},
+    {label:'PVC 박스', icon:'box'},
+    {label:'스키.스노보드', icon:'ski'},
+    {label:'볼링용품', icon:'bowling'},
+    {label:'인라인 스케이트', icon:'inline-skate'},
+    {label:'스케이트', icon:'ice-skate'},
+    {label:'킥보드', icon:'kickboard'},
+    {label:'낚시용품', icon:'fish'},
+    {label:'병풍', icon:'screen'},
+    {label:'재봉틀', icon:'scissors'},
+    {label:'항아리', icon:'jar'},
+    {label:'청소도구', icon:'broom'},
+  ]},
+];
+
+// flatten with stable unique ids: "<sectionId>__<index>"
+SECTIONS.forEach(sec=>{
+  sec.items.forEach((it,i)=>{
+    it.id = sec.id + '__' + i;
+    it.sectionId = sec.id;
+  });
+});
+
+// items that use tap-to-count quantity instead of photo capture
+const norm = s => s.replace(/[\s.,&()':]/g,'').toLowerCase();
+const QTY_LABELS = [
+  '액자(대):72inch/Lx2','액자(중):36inch/M','액자(소):18inch/S','도자기','카페트/돗자리','장식품 (스탠딩)','조각','스피커',
+  '전기장판','램프','가습기','이불','거울','옷 & 의류','스탠드',
+  '컴퓨터','프린터','LP, CD, DVD','레고,Figure','책','문구류 및 잡화','서류 및 파일',
+  '그릇','전기밥솥','커피머신','냄비','부엌잡화','주방기구','전자레인지','정수기','교자상','식기세척기','식기건조기',
+  '전기히터','진공청소기','선풍기','PVC 박스','스키.스노보드','자전거','골프용품','볼링용품','인라인 스케이트','스케이트','킥보드','낚시용품','등산용품','병풍','재봉틀','항아리','청소도구','신발','욕실용품','캠핑장비',
+];
+const QTY_SET = new Set(QTY_LABELS.map(norm));
+SECTIONS.forEach(sec=>{
+  sec.items.forEach(it=>{ it.mode = QTY_SET.has(norm(it.label)) ? 'qty' : 'photo'; });
+});
+
+function findCat(id){
+  for(const sec of SECTIONS){
+    const found = sec.items.find(it=>it.id===id);
+    if(found) return found;
+  }
+  return null;
+}
+
+function updateQty(cat, delta){
+  let entry = state.items.find(i=>i.catId===cat.id && i.isQty);
+  if(!entry){
+    if(delta<=0) return;
+    entry = {catId:cat.id, label:cat.label, isQty:true, qty:0, photo:null};
+    state.items.push(entry);
+  }
+  entry.qty = Math.max(0, entry.qty + delta);
+  if(entry.qty===0){
+    state.items = state.items.filter(i=>i!==entry);
+  }
+  renderTabs();
+  renderItemList();
+  updateBar2();
+}
+
+function cbmRange(base){
+  const low = (base*0.7).toFixed(3);
+  const high = (base*1.15).toFixed(3);
+  return {low, high};
+}
+
+function effectiveCbm(it, cat){
+  if(cat?.needsAssembly && it.assembly==='O') return it.cbm*0.6;
+  return it.cbm;
+}
+
+const state = {
+  customer:{name:'',email:'',phone:'',zip:'',dest:''},
+  items:[] // {catId,label,min,max,cuft,note,photo}
+};
+let activeCatId = null;
+
+// ---------- step nav ----------
+function goStep(n){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-'+n).classList.add('active');
+  document.querySelectorAll('.step-dot').forEach(d=>{
+    const s = parseInt(d.dataset.step);
+    d.classList.toggle('active', s===n);
+    d.classList.toggle('done', s<n);
+  });
+  for(let i=1;i<=3;i++) document.getElementById('bar-'+i).style.display = (i===n)?'block':'none';
+  window.scrollTo(0,0);
+}
+
+// ---------- STEP 1 ----------
+document.getElementById('in-phone').addEventListener('input', (e)=>{
+  const digits = e.target.value.replace(/\D/g,'').slice(0,10);
+  let formatted = digits;
+  if(digits.length>6) formatted = digits.slice(0,3)+'-'+digits.slice(3,6)+'-'+digits.slice(6);
+  else if(digits.length>3) formatted = digits.slice(0,3)+'-'+digits.slice(3);
+  e.target.value = formatted;
+});
+
+const fields = [
+  {key:'name', id:'in-name', wrap:'f-name', validate:v=>v.trim().length>=2},
+  {key:'email', id:'in-email', wrap:'f-email', validate:v=>/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim())},
+  {key:'phone', id:'in-phone', wrap:'f-phone', validate:v=>/^\d{10}$/.test(v.replace(/\D/g,''))},
+  {key:'zip', id:'in-zip', wrap:'f-zip', validate:v=>/^\d{5}$/.test(v.trim())},
+  {key:'dest', id:'in-dest', wrap:'f-dest', validate:v=>v.trim().length>=2},
+];
+
+document.getElementById('btn-1-next').addEventListener('click', ()=>{
+  let allValid = true;
+  fields.forEach(f=>{
+    const val = document.getElementById(f.id).value;
+    const ok = f.validate(val);
+    document.getElementById(f.wrap).classList.toggle('error', !ok);
+    if(!ok) allValid = false; else state.customer[f.key] = val.trim();
+  });
+  document.getElementById('s1-banner').classList.toggle('show', !allValid);
+  if(allValid){
+    goStep(2);
+  }
+});
+
+// ---------- STEP 2 : section tabs + list ----------
+let activeSectionId = SECTIONS[0].id;
+let searchTerm = '';
+
+const tabsEl = document.getElementById('sec-tabs');
+function sectionPhotoCount(secId){
+  return state.items.filter(i=>findCat(i.catId)?.sectionId===secId).length;
+}
+function renderTabs(){
+  tabsEl.innerHTML = SECTIONS.map(sec=>`
+    <div class="sec-tab ${sec.id===activeSectionId?'active':''}" data-sec="${sec.id}">${sec.name}</div>
+  `).join('');
+  tabsEl.querySelectorAll('.sec-tab').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      activeSectionId = el.dataset.sec;
+      renderTabs();
+      renderItemList();
+    });
+  });
+}
+
+const ICONS = {
+  'archive': '<rect x=\'3\' y=\'4\' width=\'18\' height=\'4\' rx=\'1\'/><path d=\'M4 8v10a2 2 0 002 2h12a2 2 0 002-2V8\'/><line x1=\'10\' y1=\'13\' x2=\'14\' y2=\'13\'/>',
+  'armchair': '<path d=\'M5 11V7a3 3 0 016 0v1h2V7a3 3 0 016 0v4\'/><path d=\'M4 11h16v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5z\'/><line x1=\'6\' y1=\'18\' x2=\'6\' y2=\'20\'/><line x1=\'18\' y1=\'18\' x2=\'18\' y2=\'20\'/>',
+  'baby': '<circle cx=\'12\' cy=\'7\' r=\'3\'/><path d=\'M7 21c0-4 2-7 5-7s5 3 5 7\'/>',
+  'bed': '<rect x=\'2\' y=\'11\' width=\'20\' height=\'7\' rx=\'1.5\'/><path d=\'M4 11V8a2 2 0 012-2h5a2 2 0 012 2v3\'/><rect x=\'4.5\' y=\'7\' width=\'4\' height=\'2.4\' rx=\'1\'/><line x1=\'2\' y1=\'18\' x2=\'2\' y2=\'20.5\'/><line x1=\'22\' y1=\'18\' x2=\'22\' y2=\'20.5\'/>',
+  'bed-double': '<path d=\'M3 18v-6a2 2 0 012-2h14a2 2 0 012 2v6\'/><path d=\'M3 18v2M21 18v2\'/><path d=\'M3 12V9a2 2 0 012-2h4a2 2 0 012 2v3\'/><line x1=\'11\' y1=\'12\' x2=\'21\' y2=\'12\'/><line x1=\'12\' y1=\'10\' x2=\'12\' y2=\'18\'/>',
+  'bed-single': '<path d=\'M3 18v-6a2 2 0 012-2h14a2 2 0 012 2v6\'/><path d=\'M3 18v2M21 18v2\'/><path d=\'M3 12V9a2 2 0 012-2h4a2 2 0 012 2v3\'/><line x1=\'11\' y1=\'12\' x2=\'21\' y2=\'12\'/>',
+  'bike': '<circle cx=\'6\' cy=\'17\' r=\'3.2\'/><circle cx=\'18\' cy=\'17\' r=\'3.2\'/><path d=\'M6 17l4-9h4l3 9M10 8h3M13 8l3 5\'/>',
+  'book': '<path d=\'M5 4h11a2 2 0 012 2v14H7a2 2 0 01-2-2V4z\'/><line x1=\'7\' y1=\'4\' x2=\'7\' y2=\'20\'/>',
+  'book-open': '<path d=\'M12 6c-1.5-1.5-4-2-7-2v13c3 0 5.5.5 7 2 1.5-1.5 4-2 7-2V4c-3 0-5.5.5-7 2z\'/><line x1=\'12\' y1=\'6\' x2=\'12\' y2=\'19\'/>',
+  'box': '<path d=\'M3 8l9-5 9 5-9 5-9-5z\'/><path d=\'M3 8v9l9 5 9-5V8\'/><line x1=\'12\' y1=\'13\' x2=\'12\' y2=\'22\'/>',
+  'coffee': '<path d=\'M4 8h13v6a5 5 0 01-5 5H9a5 5 0 01-5-5V8z\'/><path d=\'M17 9h1.5a2.5 2.5 0 010 5H17\'/><line x1=\'7\' y1=\'3\' x2=\'7\' y2=\'5\'/><line x1=\'11\' y1=\'3\' x2=\'11\' y2=\'5\'/>',
+  'disc': '<circle cx=\'12\' cy=\'12\' r=\'9\'/><circle cx=\'12\' cy=\'12\' r=\'2.5\'/>',
+  'droplets': '<path d=\'M12 3s5 6 5 10a5 5 0 01-10 0c0-4 5-10 5-10z\'/>',
+  'dumbbell': '<line x1=\'3\' y1=\'12\' x2=\'21\' y2=\'12\'/><rect x=\'1.5\' y=\'9\' width=\'3\' height=\'6\' rx=\'1\'/><rect x=\'19.5\' y=\'9\' width=\'3\' height=\'6\' rx=\'1\'/><rect x=\'6\' y=\'10.2\' width=\'2\' height=\'3.6\' rx=\'0.6\'/><rect x=\'16\' y=\'10.2\' width=\'2\' height=\'3.6\' rx=\'0.6\'/>',
+  'fan': '<circle cx=\'12\' cy=\'12\' r=\'1.4\'/><path d=\'M12 12c0-3 2-7 5-7s2 5-1 7\'/><path d=\'M12 12c-3 0-7-2-7-5s5-2 7 1\'/><path d=\'M12 12c0 3-2 7-5 7s-2-5 1-7\'/><path d=\'M12 12c3 0 7 2 7 5s-5 2-7-1\'/>',
+  'fish': '<path d=\'M3 12s4-5 11-5 7 5 7 5-1 5-7 5-11-5-11-5z\'/><circle cx=\'16\' cy=\'10.5\' r=\'0.6\' fill=\'currentColor\' stroke=\'none\'/><path d=\'M3 12L1 9M3 12l-2 3\'/>',
+  'flag': '<line x1=\'5\' y1=\'3\' x2=\'5\' y2=\'21\'/><path d=\'M5 4h11l-2 4 2 4H5\'/>',
+  'flame': '<path d=\'M12 2c1 4-3 5-3 9a4 4 0 008 0c0-2-1-3-2-4 1 3-1 4-2 4-2 0-3-2-3-4 0-3 3-4 2-5z\'/>',
+  'folder': '<path d=\'M3 6a1 1 0 011-1h5l2 2h9a1 1 0 011 1v10a1 1 0 01-1 1H4a1 1 0 01-1-1V6z\'/>',
+  'footprints': '<ellipse cx=\'9\' cy=\'8\' rx=\'2\' ry=\'3\'/><ellipse cx=\'16\' cy=\'16\' rx=\'2\' ry=\'3\'/><circle cx=\'6.5\' cy=\'12.5\' r=\'0.6\' fill=\'currentColor\' stroke=\'none\'/><circle cx=\'18.5\' cy=\'21\' r=\'0.6\' fill=\'currentColor\' stroke=\'none\'/>',
+  'image': '<rect x=\'3\' y=\'4\' width=\'18\' height=\'16\' rx=\'2\'/><circle cx=\'8.5\' cy=\'9.5\' r=\'1.5\'/><path d=\'M21 16l-5-5-4 4-2-2-6 6\'/>',
+  'lamp': '<path d=\'M6 4h12l-2 8H8L6 4z\'/><line x1=\'12\' y1=\'12\' x2=\'12\' y2=\'19\'/><line x1=\'8\' y1=\'21\' x2=\'16\' y2=\'21\'/>',
+  'lamp-floor': '<path d=\'M8 3h8l-2 6H10L8 3z\'/><line x1=\'12\' y1=\'9\' x2=\'12\' y2=\'20\'/><line x1=\'8\' y1=\'21\' x2=\'16\' y2=\'21\'/>',
+  'landmark': '<line x1=\'4\' y1=\'21\' x2=\'20\' y2=\'21\'/><line x1=\'5\' y1=\'10\' x2=\'5\' y2=\'18\'/><line x1=\'9.5\' y1=\'10\' x2=\'9.5\' y2=\'18\'/><line x1=\'14.5\' y1=\'10\' x2=\'14.5\' y2=\'18\'/><line x1=\'19\' y1=\'10\' x2=\'19\' y2=\'18\'/><path d=\'M3 10l9-6 9 6z\'/>',
+  'laptop': '<rect x=\'4\' y=\'5\' width=\'16\' height=\'10\' rx=\'1\'/><path d=\'M2 19h20l-2-3H4l-2 3z\'/>',
+  'layout-grid': '<rect x=\'3\' y=\'3\' width=\'7\' height=\'7\' rx=\'1\'/><rect x=\'14\' y=\'3\' width=\'7\' height=\'7\' rx=\'1\'/><rect x=\'3\' y=\'14\' width=\'7\' height=\'7\' rx=\'1\'/><rect x=\'14\' y=\'14\' width=\'7\' height=\'7\' rx=\'1\'/>',
+  'microwave': '<rect x=\'3\' y=\'6\' width=\'18\' height=\'12\' rx=\'1.5\'/><rect x=\'6\' y=\'9\' width=\'8\' height=\'6\' rx=\'0.5\'/><line x1=\'17\' y1=\'10\' x2=\'17\' y2=\'10.01\'/><line x1=\'17\' y1=\'13\' x2=\'17\' y2=\'13.01\'/><line x1=\'17\' y1=\'16\' x2=\'17\' y2=\'16.01\'/>',
+  'mountain': '<path d=\'M3 19l6-10 4 6 2-3 6 7z\'/>',
+  'package': '<path d=\'M3 8l9-5 9 5-9 5-9-5z\'/><path d=\'M3 8v9l9 5 9-5V8\'/><line x1=\'12\' y1=\'13\' x2=\'12\' y2=\'22\'/>',
+  'package-2': '<path d=\'M4 6l8-3 8 3-8 3-8-3z\'/><path d=\'M4 6v12l8 3 8-3V6\'/><line x1=\'12\' y1=\'9\' x2=\'12\' y2=\'21\'/>',
+  'pencil': '<path d=\'M4 20l1-4L16 5l3 3L8 19l-4 1z\'/><line x1=\'14\' y1=\'7\' x2=\'17\' y2=\'10\'/>',
+  'piano': '<rect x=\'3\' y=\'5\' width=\'18\' height=\'14\' rx=\'1\'/><line x1=\'7\' y1=\'5\' x2=\'7\' y2=\'14\'/><line x1=\'11\' y1=\'5\' x2=\'11\' y2=\'14\'/><line x1=\'15\' y1=\'5\' x2=\'15\' y2=\'14\'/><line x1=\'19\' y1=\'5\' x2=\'19\' y2=\'14\'/>',
+  'printer': '<path d=\'M6 9V4h12v5\'/><rect x=\'4\' y=\'9\' width=\'16\' height=\'7\' rx=\'1\'/><path d=\'M6 14h12v6H6z\'/>',
+  'puzzle': '<rect x=\'4\' y=\'4\' width=\'7\' height=\'7\' rx=\'1\'/><rect x=\'13\' y=\'4\' width=\'7\' height=\'7\' rx=\'1\'/><rect x=\'4\' y=\'13\' width=\'7\' height=\'7\' rx=\'1\'/><rect x=\'13\' y=\'13\' width=\'7\' height=\'7\' rx=\'1\'/><circle cx=\'12\' cy=\'12\' r=\'1.6\' fill=\'currentColor\' stroke=\'none\'/>',
+  'refrigerator': '<rect x=\'6\' y=\'2\' width=\'12\' height=\'20\' rx=\'1.5\'/><line x1=\'6\' y1=\'9\' x2=\'18\' y2=\'9\'/><line x1=\'9\' y1=\'4.5\' x2=\'9\' y2=\'7\'/><line x1=\'9\' y1=\'11.5\' x2=\'9\' y2=\'14\'/>',
+  'rocking-chair': '<line x1=\'7\' y1=\'3\' x2=\'7\' y2=\'13\'/><line x1=\'15\' y1=\'3\' x2=\'15\' y2=\'13\'/><line x1=\'7\' y1=\'7\' x2=\'15\' y2=\'7\'/><line x1=\'6\' y1=\'13\' x2=\'16\' y2=\'13\'/><path d=\'M2 19c3-3 6-3 9 0M11 19c3-3 6-3 9 0\'/>',
+  'scissors': '<circle cx=\'6\' cy=\'6\' r=\'2.4\'/><circle cx=\'6\' cy=\'18\' r=\'2.4\'/><line x1=\'8\' y1=\'7.5\' x2=\'20\' y2=\'19\'/><line x1=\'8\' y1=\'16.5\' x2=\'20\' y2=\'5\'/>',
+  'shirt': '<path d=\'M8 4L4 7l2 3 2-1.5V21h8V8.5L18 10l2-3-4-3-2 2h-4l-2-2z\'/>',
+  'sofa': '<path d=\'M5 10V8a2 2 0 012-2h10a2 2 0 012 2v2\'/><path d=\'M3 12a2 2 0 012-2h14a2 2 0 012 2v4a1 1 0 01-1 1H4a1 1 0 01-1-1v-4z\'/><line x1=\'5\' y1=\'17\' x2=\'5\' y2=\'20\'/><line x1=\'19\' y1=\'17\' x2=\'19\' y2=\'20\'/>',
+  'soup': '<path d=\'M3 12a9 9 0 0018 0\'/><line x1=\'3\' y1=\'12\' x2=\'21\' y2=\'12\'/><path d=\'M8 8c0-2 1-3 1-3M12 7c0-2 1-4 1-4M16 8c0-2 1-3 1-3\'/>',
+  'sparkles': '<path d=\'M12 3l1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5L12 3z\'/><path d=\'M19 15l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z\'/>',
+  'speaker': '<rect x=\'6\' y=\'2\' width=\'12\' height=\'20\' rx=\'2\'/><circle cx=\'12\' cy=\'8\' r=\'2\'/><circle cx=\'12\' cy=\'16\' r=\'3.2\'/>',
+  'table': '<line x1=\'3\' y1=\'8\' x2=\'21\' y2=\'8\'/><path d=\'M3 8l2-4h14l2 4\'/><line x1=\'6\' y1=\'8\' x2=\'6\' y2=\'20\'/><line x1=\'18\' y1=\'8\' x2=\'18\' y2=\'20\'/>',
+  'tent': '<path d=\'M12 4l9 16H3L12 4z\'/><path d=\'M12 4v16\'/><path d=\'M7 20l5-9 5 9\'/>',
+  'tv': '<rect x=\'3\' y=\'5\' width=\'18\' height=\'12\' rx=\'1.5\'/><line x1=\'9\' y1=\'21\' x2=\'15\' y2=\'21\'/><line x1=\'12\' y1=\'17\' x2=\'12\' y2=\'21\'/>',
+  'utensils': '<path d=\'M6 3v7a2 2 0 002 2v9M6 3v7M9 3v7\'/><path d=\'M16 3c-1.5 0-2 2-2 4s.5 4 2 4V21\'/>',
+  'washing-machine': '<rect x=\'4\' y=\'3\' width=\'16\' height=\'18\' rx=\'1.5\'/><circle cx=\'12\' cy=\'13\' r=\'5\'/><circle cx=\'12\' cy=\'13\' r=\'2\'/><line x1=\'7\' y1=\'6\' x2=\'8\' y2=\'6\'/><line x1=\'10\' y1=\'6\' x2=\'11\' y2=\'6\'/>',
+  'wind': '<path d=\'M3 8h11a2.5 2.5 0 100-5\'/><path d=\'M3 13h15a2.5 2.5 0 110 5\'/><path d=\'M3 18h8\'/>',
+  'wardrobe': '<rect x=\'4\' y=\'3\' width=\'16\' height=\'18\' rx=\'1\'/><line x1=\'12\' y1=\'3\' x2=\'12\' y2=\'21\'/><circle cx=\'9\' cy=\'12\' r=\'0.7\' fill=\'currentColor\' stroke=\'none\'/><circle cx=\'15\' cy=\'12\' r=\'0.7\' fill=\'currentColor\' stroke=\'none\'/>',
+  'drawer-chest': '<rect x=\'4\' y=\'3\' width=\'16\' height=\'18\' rx=\'1\'/><line x1=\'4\' y1=\'9\' x2=\'20\' y2=\'9\'/><line x1=\'4\' y1=\'15\' x2=\'20\' y2=\'15\'/><rect x=\'10\' y=\'5.6\' width=\'4\' height=\'1.3\' rx=\'0.6\' fill=\'currentColor\' stroke=\'none\'/><rect x=\'10\' y=\'11.6\' width=\'4\' height=\'1.3\' rx=\'0.6\' fill=\'currentColor\' stroke=\'none\'/><rect x=\'10\' y=\'17.6\' width=\'4\' height=\'1.3\' rx=\'0.6\' fill=\'currentColor\' stroke=\'none\'/>',
+  'console': '<rect x=\'2\' y=\'7\' width=\'20\' height=\'9\' rx=\'1\'/><line x1=\'7\' y1=\'11.5\' x2=\'17\' y2=\'11.5\'/><line x1=\'6\' y1=\'16\' x2=\'6\' y2=\'19\'/><line x1=\'18\' y1=\'16\' x2=\'18\' y2=\'19\'/>',
+  'vase': '<path d=\'M9 3h6l-1 3.2c1.6 1.1 2.5 2.9 2.5 4.8a4.5 4.5 0 01-9 0c0-1.9.9-3.7 2.5-4.8L9 3z\'/>',
+  'rug': '<rect x=\'3\' y=\'6\' width=\'18\' height=\'12\' rx=\'2\'/><line x1=\'7.5\' y1=\'6\' x2=\'7.5\' y2=\'18\'/><line x1=\'16.5\' y1=\'6\' x2=\'16.5\' y2=\'18\'/><line x1=\'3\' y1=\'4\' x2=\'3\' y2=\'6\'/><line x1=\'7.5\' y1=\'4\' x2=\'7.5\' y2=\'6\'/><line x1=\'12\' y1=\'4\' x2=\'12\' y2=\'6\'/><line x1=\'16.5\' y1=\'4\' x2=\'16.5\' y2=\'6\'/><line x1=\'21\' y1=\'4\' x2=\'21\' y2=\'6\'/>',
+  'treadmill': '<rect x=\'2\' y=\'15\' width=\'15\' height=\'4\' rx=\'2\'/><path d=\'M14 15V9a2 2 0 012-2h2.5\'/><circle cx=\'19.5\' cy=\'5.5\' r=\'1.3\'/>',
+  'vanity': '<ellipse cx=\'12\' cy=\'6.5\' rx=\'4\' ry=\'5\'/><line x1=\'4\' y1=\'16\' x2=\'20\' y2=\'16\'/><line x1=\'6\' y1=\'16\' x2=\'6\' y2=\'21\'/><line x1=\'18\' y1=\'16\' x2=\'18\' y2=\'21\'/><line x1=\'12\' y1=\'11.5\' x2=\'12\' y2=\'16\'/>',
+  'chest': '<rect x=\'3\' y=\'7\' width=\'18\' height=\'9\' rx=\'1\'/><line x1=\'3\' y1=\'11.5\' x2=\'21\' y2=\'11.5\'/><rect x=\'9\' y=\'9\' width=\'6\' height=\'1.3\' rx=\'0.6\' fill=\'currentColor\' stroke=\'none\'/><line x1=\'6\' y1=\'16\' x2=\'6\' y2=\'19\'/><line x1=\'18\' y1=\'16\' x2=\'18\' y2=\'19\'/>',
+  'heater': '<rect x=\'3\' y=\'9\' width=\'18\' height=\'9\' rx=\'1.5\'/><path d=\'M7 9c0-1.5 1-2 1-3.5S7 3 7 3M12 9c0-1.5 1-2 1-3.5S12 3 12 3M17 9c0-1.5 1-2 1-3.5S17 3 17 3\'/>',
+  'styler': '<rect x=\'6\' y=\'2\' width=\'12\' height=\'20\' rx=\'1.5\'/><path d=\'M10 6c0 1-1 1.5-1 2.5s1 1.5 1 2.5-1 1.5-1 2.5M14 6c0 1-1 1.5-1 2.5s1 1.5 1 2.5-1 1.5-1 2.5\'/>',
+  'ski': '<line x1=\'6\' y1=\'21\' x2=\'9\' y2=\'3\'/><path d=\'M9 3c1.3 0 1.8.5 1.8 1.5\'/><line x1=\'14\' y1=\'21\' x2=\'17\' y2=\'3\'/><path d=\'M17 3c1.3 0 1.8.5 1.8 1.5\'/>',
+  'golf': '<path d=\'M6 21V4l11 3.2L6 11\'/><circle cx=\'18\' cy=\'19\' r=\'1.6\'/>',
+  'bowling': '<circle cx=\'6.5\' cy=\'16.5\' r=\'3.5\'/><circle cx=\'5.5\' cy=\'15.5\' r=\'0.4\' fill=\'currentColor\' stroke=\'none\'/><circle cx=\'7.5\' cy=\'15.5\' r=\'0.4\' fill=\'currentColor\' stroke=\'none\'/><circle cx=\'6.5\' cy=\'17.2\' r=\'0.4\' fill=\'currentColor\' stroke=\'none\'/><path d=\'M15 3c-1 2-1 3 .5 4.2S17 9 16 11s-1 3 .5 4.2S18 17 17 19h4c1-2 1-3-.5-4.2S19 13 20 11s1-3-.5-4.2S18 5 19 3z\'/>',
+  'inline-skate': '<path d=\'M3 18h13l2.5-3.2H8.5L6 12H3v6z\'/><circle cx=\'6.5\' cy=\'19.6\' r=\'1.1\'/><circle cx=\'10\' cy=\'19.6\' r=\'1.1\'/><circle cx=\'13.5\' cy=\'19.6\' r=\'1.1\'/>',
+  'ice-skate': '<path d=\'M5 16V6a2 2 0 012-2h5v12\'/><path d=\'M3 16h13l3-2.2\'/><line x1=\'4\' y1=\'19\' x2=\'20\' y2=\'19\'/>',
+  'screen': '<rect x=\'2\' y=\'3\' width=\'6\' height=\'18\' rx=\'0.6\'/><rect x=\'9\' y=\'3\' width=\'6\' height=\'18\' rx=\'0.6\'/><rect x=\'16\' y=\'3\' width=\'6\' height=\'18\' rx=\'0.6\'/>',
+  'jar': '<path d=\'M8 3h8v2.5H8z\'/><path d=\'M7 5.5h10l1.2 4.2v8.3a4 4 0 01-4 4h-4.4a4 4 0 01-4-4V9.7z\'/>',
+  'broom': '<line x1=\'15\' y1=\'2\' x2=\'7\' y2=\'15\'/><path d=\'M7 15l-3.5 6.5h9z\'/><line x1=\'5.5\' y1=\'18.5\' x2=\'11\' y2=\'18.5\'/>',
+  'bathtub': '<path d=\'M4 12V7a2 2 0 012-2h1a2 2 0 012 2\'/><path d=\'M2 12h20\'/><path d=\'M3 12v3a5 5 0 005 5h8a5 5 0 005-5v-3\'/><line x1=\'8\' y1=\'20\' x2=\'8\' y2=\'22\'/><line x1=\'16\' y1=\'20\' x2=\'16\' y2=\'22\'/>',
+  'dining-table': '<rect x=\'4\' y=\'9\' width=\'16\' height=\'2\' rx=\'1\'/><line x1=\'6.5\' y1=\'11\' x2=\'6.5\' y2=\'19\'/><line x1=\'17.5\' y1=\'11\' x2=\'17.5\' y2=\'19\'/><path d=\'M2 9V7a1 1 0 011-1h2M22 9V7a1 1 0 00-1-1h-2\'/>',
+  'dining-chair': '<path d=\'M6 3v9M18 3v9\'/><path d=\'M5 12h14v3.5a1 1 0 01-1 1H6a1 1 0 01-1-1V12z\'/><line x1=\'7\' y1=\'16.5\' x2=\'7\' y2=\'21\'/><line x1=\'17\' y1=\'16.5\' x2=\'17\' y2=\'21\'/>',
+  'rice-cooker': '<rect x=\'4\' y=\'9\' width=\'16\' height=\'9\' rx=\'2\'/><path d=\'M4 9a2 2 0 012-2h12a2 2 0 012 2\'/><circle cx=\'12\' cy=\'6\' r=\'1\'/><line x1=\'8.5\' y1=\'13.5\' x2=\'8.5\' y2=\'13.51\'/>',
+  'basket': '<path d=\'M4 10h16l-1.6 8.2a2 2 0 01-2 1.8H7.6a2 2 0 01-2-1.8z\'/><path d=\'M8 10V7a4 4 0 018 0v3\'/>',
+  'buffet': '<rect x=\'3\' y=\'13\' width=\'18\' height=\'2\' rx=\'1\'/><line x1=\'5.5\' y1=\'15\' x2=\'5.5\' y2=\'20\'/><line x1=\'18.5\' y1=\'15\' x2=\'18.5\' y2=\'20\'/><path d=\'M7 13a2 2 0 014 0M13 13a2 2 0 014 0\'/>',
+  'display-cabinet': '<rect x=\'5\' y=\'2\' width=\'14\' height=\'20\' rx=\'1\'/><line x1=\'5\' y1=\'12\' x2=\'19\' y2=\'12\'/><line x1=\'9\' y1=\'2\' x2=\'9\' y2=\'12\'/><line x1=\'15\' y1=\'2\' x2=\'15\' y2=\'12\'/>',
+  'dispenser': '<rect x=\'6\' y=\'3\' width=\'12\' height=\'18\' rx=\'1.5\'/><rect x=\'9\' y=\'6\' width=\'6\' height=\'4\' rx=\'0.5\'/><line x1=\'12\' y1=\'13\' x2=\'12\' y2=\'15\'/><path d=\'M10 15h4l-1 3h-2z\'/>',
+  'low-table': '<rect x=\'3\' y=\'11\' width=\'18\' height=\'2\' rx=\'1\'/><path d=\'M5.5 13l-1.5 6M18.5 13l1.5 6\'/>',
+  'crib': '<rect x=\'4\' y=\'10\' width=\'16\' height=\'7\' rx=\'1\'/><line x1=\'4\' y1=\'10\' x2=\'4\' y2=\'5\'/><line x1=\'7.2\' y1=\'10\' x2=\'7.2\' y2=\'5\'/><line x1=\'10.4\' y1=\'10\' x2=\'10.4\' y2=\'5\'/><line x1=\'13.6\' y1=\'10\' x2=\'13.6\' y2=\'5\'/><line x1=\'16.8\' y1=\'10\' x2=\'16.8\' y2=\'5\'/><line x1=\'20\' y1=\'10\' x2=\'20\' y2=\'5\'/><line x1=\'2\' y1=\'17\' x2=\'2\' y2=\'20.5\'/><line x1=\'22\' y1=\'17\' x2=\'22\' y2=\'20.5\'/>',
+  'corner-cabinet': '<path d=\'M4 21V6l14 15z\'/><line x1=\'4\' y1=\'14\' x2=\'11\' y2=\'14\'/><circle cx=\'7\' cy=\'17.5\' r=\'0.7\' fill=\'currentColor\' stroke=\'none\'/>',
+  'antique-chest': '<rect x=\'4\' y=\'5\' width=\'16\' height=\'11\' rx=\'1\'/><line x1=\'4\' y1=\'10.5\' x2=\'20\' y2=\'10.5\'/><rect x=\'9\' y=\'6.8\' width=\'6\' height=\'1.3\' rx=\'0.6\' fill=\'currentColor\' stroke=\'none\'/><rect x=\'9\' y=\'12.3\' width=\'6\' height=\'1.3\' rx=\'0.6\' fill=\'currentColor\' stroke=\'none\'/><path d=\'M6 16l-1.5 5M18 16l1.5 5\'/>',
+  'trunk': '<path d=\'M3 10a2 2 0 012-2h14a2 2 0 012 2v8H3z\'/><path d=\'M3 10c0-2.5 2-4 4-4h10c2 0 4 1.5 4 4\'/><rect x=\'10.5\' y=\'10.5\' width=\'3\' height=\'2\' rx=\'0.4\' fill=\'currentColor\' stroke=\'none\'/>',
+  'side-table': '<ellipse cx=\'12\' cy=\'7\' rx=\'7\' ry=\'2.2\'/><line x1=\'6\' y1=\'8\' x2=\'6\' y2=\'19\'/><line x1=\'18\' y1=\'8\' x2=\'18\' y2=\'19\'/><line x1=\'12\' y1=\'9.2\' x2=\'12\' y2=\'19\'/>',
+  'humidifier': '<path d=\'M12 21a4 4 0 01-4-4c0-3 4-8 4-8s4 5 4 8a4 4 0 01-4 4z\'/><path d=\'M8 3c0 .8-.6 1-.6 1.8S8 6 8 6.8M12 3c0 .8-.6 1-.6 1.8s.6 1 .6 1.8M16 3c0 .8-.6 1-.6 1.8s.6 1 .6 1.8\'/>',
+  'blanket': '<path d=\'M3 16c3-1.5 6-1.5 9 0s6 1.5 9 0\'/><path d=\'M3 12c3-1.5 6-1.5 9 0s6 1.5 9 0\'/><path d=\'M3 20c3-1.5 6-1.5 9 0s6 1.5 9 0\'/>',
+  'mirror': '<ellipse cx=\'12\' cy=\'9\' rx=\'6\' ry=\'7\'/><line x1=\'12\' y1=\'16\' x2=\'12\' y2=\'20\'/><line x1=\'8\' y1=\'20\' x2=\'16\' y2=\'20\'/>',
+  'bookshelf': '<rect x=\'4\' y=\'2\' width=\'16\' height=\'20\' rx=\'1\'/><line x1=\'4\' y1=\'9\' x2=\'20\' y2=\'9\'/><line x1=\'4\' y1=\'15.5\' x2=\'20\' y2=\'15.5\'/><line x1=\'7\' y1=\'4\' x2=\'7\' y2=\'8\'/><line x1=\'9.5\' y1=\'4\' x2=\'9.5\' y2=\'8\'/><line x1=\'12\' y1=\'4\' x2=\'12\' y2=\'8\'/>',
+  'office-chair': '<rect x=\'7\' y=\'4\' width=\'10\' height=\'7\' rx=\'1.5\'/><line x1=\'12\' y1=\'11\' x2=\'12\' y2=\'16\'/><path d=\'M12 16l-5 2M12 16l5 2M12 16l0 3\'/><line x1=\'12\' y1=\'19\' x2=\'12\' y2=\'21\'/><line x1=\'9\' y1=\'21\' x2=\'15\' y2=\'21\'/>',
+  'plain-chair': '<line x1=\'6\' y1=\'2\' x2=\'6\' y2=\'11\'/><rect x=\'6\' y=\'11\' width=\'11\' height=\'1.6\' rx=\'0.4\'/><line x1=\'7\' y1=\'12.6\' x2=\'7\' y2=\'21\'/><line x1=\'16\' y1=\'12.6\' x2=\'16\' y2=\'21\'/><line x1=\'6\' y1=\'6\' x2=\'11\' y2=\'6\'/>',
+  'folding-chair': '<path d=\'M4 20L12 4L20 20\'/><path d=\'M4 20L12 12L20 20\'/><line x1=\'7\' y1=\'9\' x2=\'17\' y2=\'9\'/>',
+  'computer-desk': '<rect x=\'7\' y=\'3\' width=\'10\' height=\'7\' rx=\'1\'/><line x1=\'12\' y1=\'10\' x2=\'12\' y2=\'12\'/><line x1=\'3\' y1=\'16\' x2=\'21\' y2=\'16\'/><line x1=\'5\' y1=\'16\' x2=\'5\' y2=\'21\'/><line x1=\'19\' y1=\'16\' x2=\'19\' y2=\'21\'/>',
+  'lego': '<rect x=\'4\' y=\'9\' width=\'16\' height=\'10\' rx=\'1.5\'/><circle cx=\'8\' cy=\'6.5\' r=\'2\'/><circle cx=\'16\' cy=\'6.5\' r=\'2\'/><line x1=\'8\' y1=\'6.5\' x2=\'8\' y2=\'9\'/><line x1=\'16\' y1=\'6.5\' x2=\'16\' y2=\'9\'/>',
+  'desk': '<line x1=\'2\' y1=\'9\' x2=\'22\' y2=\'9\'/><path d=\'M4 9V6a1 1 0 011-1h14a1 1 0 011 1v3\'/><rect x=\'9\' y=\'11\' width=\'6\' height=\'2.2\' rx=\'0.4\'/><line x1=\'4\' y1=\'9\' x2=\'4\' y2=\'20\'/><line x1=\'20\' y1=\'9\' x2=\'20\' y2=\'20\'/>',
+  'dining-table2': '<rect x=\'2\' y=\'7\' width=\'20\' height=\'2\' rx=\'1\'/><line x1=\'5\' y1=\'9\' x2=\'5\' y2=\'19\'/><line x1=\'9\' y1=\'9\' x2=\'9\' y2=\'19\'/><line x1=\'15\' y1=\'9\' x2=\'15\' y2=\'19\'/><line x1=\'19\' y1=\'9\' x2=\'19\' y2=\'19\'/>',
+  'dining-chair2': '<path d=\'M6 2v11\'/><line x1=\'6\' y1=\'6\' x2=\'10\' y2=\'6\'/><rect x=\'5\' y=\'13\' width=\'13\' height=\'2\' rx=\'0.6\'/><line x1=\'7\' y1=\'15\' x2=\'7\' y2=\'21\'/><line x1=\'16\' y1=\'15\' x2=\'16\' y2=\'21\'/>',
+  'bowl': '<ellipse cx=\'12\' cy=\'9.5\' rx=\'8\' ry=\'2.2\'/><path d=\'M4 9.5h16a8 5 0 01-16 0z\'/>',
+  'console-table': '<rect x=\'2\' y=\'4\' width=\'20\' height=\'2\' rx=\'1\'/><line x1=\'4.5\' y1=\'6\' x2=\'4.5\' y2=\'19\'/><line x1=\'19.5\' y1=\'6\' x2=\'19.5\' y2=\'19\'/><line x1=\'4.5\' y1=\'19\' x2=\'19.5\' y2=\'19\'/>',
+  'coffee-table2': '<rect x=\'2\' y=\'12.5\' width=\'20\' height=\'2.2\' rx=\'1\'/><line x1=\'4.5\' y1=\'14.7\' x2=\'4.5\' y2=\'19\'/><line x1=\'19.5\' y1=\'14.7\' x2=\'19.5\' y2=\'19\'/>',
+  'standing-ac': '<rect x=\'7\' y=\'2\' width=\'10\' height=\'20\' rx=\'2\'/><line x1=\'9\' y1=\'6\' x2=\'15\' y2=\'6\'/><line x1=\'9\' y1=\'9\' x2=\'15\' y2=\'9\'/><line x1=\'9\' y1=\'12\' x2=\'15\' y2=\'12\'/><circle cx=\'12\' cy=\'17\' r=\'1.2\'/>',
+  'massage-chair': '<path d=\'M4 10V6a2 2 0 012-2h1a2 2 0 012 2v4\'/><path d=\'M13 10V6a2 2 0 012-2h1a2 2 0 012 2v4\'/><rect x=\'3\' y=\'10\' width=\'16\' height=\'6\' rx=\'1.5\'/><path d=\'M19 13h3v5a1 1 0 01-1 1h-2z\'/><line x1=\'6\' y1=\'16\' x2=\'6\' y2=\'20\'/><line x1=\'14\' y1=\'16\' x2=\'14\' y2=\'20\'/>',
+  'tv-cabinet': '<rect x=\'6\' y=\'3\' width=\'12\' height=\'7\' rx=\'1\'/><line x1=\'10\' y1=\'10\' x2=\'14\' y2=\'10\'/><rect x=\'2\' y=\'13\' width=\'20\' height=\'6\' rx=\'1\'/><line x1=\'2\' y1=\'16\' x2=\'22\' y2=\'16\'/>',
+  'figurine': '<path d=\'M12 3a2.5 2.5 0 012.5 2.5c0 1-.5 1.8-1.2 2.3.9.6 1.7 1.7 1.7 3.2v2H9v-2c0-1.5.8-2.6 1.7-3.2-.7-.5-1.2-1.3-1.2-2.3A2.5 2.5 0 0112 3z\'/><rect x=\'8\' y=\'13\' width=\'8\' height=\'2\' rx=\'0.5\'/><rect x=\'9\' y=\'15\' width=\'6\' height=\'5\' rx=\'0.5\'/>',
+  'heating-pad': '<rect x=\'3\' y=\'6\' width=\'18\' height=\'12\' rx=\'2\'/><path d=\'M6 9.5c1 0 1 1.5 2 1.5s1-1.5 2-1.5 1 1.5 2 1.5 1-1.5 2-1.5 1 1.5 2 1.5 1-1.5 2-1.5\'/><path d=\'M6 14.5c1 0 1 1.5 2 1.5s1-1.5 2-1.5 1 1.5 2 1.5 1-1.5 2-1.5 1 1.5 2 1.5 1-1.5 2-1.5\'/>',
+  'duvet': '<path d=\'M3 8h14v10a2 2 0 01-2 2H5a2 2 0 01-2-2V8z\'/><path d=\'M17 8l4 4v6a2 2 0 01-2 2h-2\'/><line x1=\'6\' y1=\'12\' x2=\'14\' y2=\'12\'/><line x1=\'6\' y1=\'16\' x2=\'14\' y2=\'16\'/>',
+  'kickboard': '<circle cx=\'5\' cy=\'20\' r=\'1.5\'/><circle cx=\'17\' cy=\'20\' r=\'1.5\'/><path d=\'M5 20h10l4-14\'/><line x1=\'17\' y1=\'6\' x2=\'21\' y2=\'6\'/>',
+  'reading-table': '<rect x=\'3\' y=\'8\' width=\'18\' height=\'2\' rx=\'1\'/><line x1=\'5.5\' y1=\'10\' x2=\'5.5\' y2=\'20\'/><line x1=\'18.5\' y1=\'10\' x2=\'18.5\' y2=\'20\'/>',
+};
+
+const listEl = document.getElementById('item-list');
+function svgIcon(slug, tier){
+  const inner = ICONS[slug] || ICONS['package'];
+  const px = {sm:21, md:27, lg:33, xl:39}[tier] || 27;
+  return `<svg class="licon" width="${px}" height="${px}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${inner}</svg>`;
+}
+function renderItemList(){
+  const sec = SECTIONS.find(s=>s.id===activeSectionId);
+  const term = searchTerm.trim().toLowerCase();
+  let items = term
+    ? SECTIONS.flatMap(s=>s.items).filter(it=>it.label.toLowerCase().includes(term))
+    : sec.items;
+  items = [...items].sort((a,b)=> (a.mode==='qty'?1:0) - (b.mode==='qty'?1:0));
+
+  if(items.length===0){
+    listEl.innerHTML = `<div class="empty-hint">검색 결과가 없어요.</div>`;
+  }else{
+    listEl.innerHTML = items.map(it=>{
+      const isQty = it.mode==='qty';
+      const entries = state.items.filter(i=>i.catId===it.id);
+
+      if(isQty){
+        const qty = entries[0]?.qty || 0;
+        return `
+          <div class="item-card qty-card ${qty>0?'active':''}" data-cat="${it.id}">
+            <div class="icon">${svgIcon(it.icon, it.size)}</div>
+            <div class="lbl">${it.label}</div>
+            <div class="qty-stepper">
+              <button class="step minus" data-role="minus" ${qty===0?'disabled':''}>−</button>
+              <span class="num">${qty}</span>
+              <button class="step plus" data-role="plus">+</button>
+            </div>
+          </div>
+        `;
+      }else{
+        const count = entries.length;
+        const lastEntry = [...entries].reverse()[0];
+        const lastPhoto = lastEntry?.photo;
+        const iconInner = lastPhoto ? `<img src="${lastPhoto}">` : svgIcon(it.icon, it.size);
+        const assemblyTag = (it.needsAssembly && lastEntry?.assembly)
+          ? `<div class="assembly-tag ${lastEntry.assembly==='X'?'x':''}">${lastEntry.assembly}</div>`
+          : '';
+        return `
+          <div class="item-card" data-cat="${it.id}">
+            ${count>0?`<div class="qty">×${count}</div>`:''}
+            <div class="icon" data-role="thumb">${iconInner}</div>
+            <div class="lbl">${it.label}</div>
+            ${assemblyTag}
+          </div>
+        `;
+      }
+    }).join('');
+
+    listEl.querySelectorAll('.item-card').forEach(card=>{
+      const cat = findCat(card.dataset.cat);
+      if(cat.mode==='qty'){
+        card.querySelector('[data-role="minus"]').addEventListener('click', ()=> updateQty(cat, -1));
+        card.querySelector('[data-role="plus"]').addEventListener('click', ()=> updateQty(cat, +1));
+      }else{
+        card.addEventListener('click', ()=>{
+          activeCatId = cat.id;
+          document.getElementById('camera-input').click();
+        });
+      }
+    });
+  }
+  document.getElementById('sec-count').textContent = sectionPhotoCount(activeSectionId);
+  document.getElementById('all-count').textContent = state.items.length;
+}
+
+document.getElementById('item-search').addEventListener('input', (e)=>{
+  searchTerm = e.target.value;
+  renderItemList();
+});
+
+renderTabs();
+renderItemList();
+
+const cameraInput = document.getElementById('camera-input');
+cameraInput.addEventListener('change', async (e)=>{
+  const file = e.target.files[0];
+  if(!file || !activeCatId) return;
+  const cat = findCat(activeCatId);
+  const row = document.querySelector(`.item-card[data-cat="${activeCatId}"]`);
+  const thumbEl = row?.querySelector('[data-role="thumb"]');
+  if(thumbEl) thumbEl.textContent = '⏳';
+
+  let entry;
+  try{
+    const dataUrl = await resizeImage(file, 700, 0.6);
+    entry = {catId:cat.id, label:cat.label, cbm:cat.cbm, photo:dataUrl};
+  }catch(err){
+    console.error(err);
+    entry = {catId:cat.id, label:cat.label, cbm:cat.cbm, photo:null};
+  }
+  state.items.push(entry);
+  cameraInput.value = '';
+  activeCatId = null;
+  renderTabs();
+  renderItemList();
+  updateBar2();
+  if(cat.needsAssembly){
+    askAssembly(entry);
+  }
+});
+
+function askAssembly(entry){
+  const modal = document.getElementById('assembly-modal');
+  document.getElementById('assembly-modal-title').textContent = entry.label + ' — 분해 가능 여부';
+  modal.classList.remove('hidden');
+  const done = (val)=>{
+    entry.assembly = val;
+    entry.note = (entry.note ? entry.note + ' · ' : '') + (val==='O' ? '분해 가능(O)' : '분해 불가(X)');
+    modal.classList.add('hidden');
+    btnO.removeEventListener('click', onO);
+    btnX.removeEventListener('click', onX);
+    renderItemList();
+  };
+  const btnO = document.getElementById('assembly-btn-o');
+  const btnX = document.getElementById('assembly-btn-x');
+  const onO = ()=>done('O');
+  const onX = ()=>done('X');
+  btnO.addEventListener('click', onO);
+  btnX.addEventListener('click', onX);
+}
+
+function updateBar2(){
+  const n = state.items.length;
+  document.getElementById('bar2-count').textContent = n;
+  document.getElementById('btn-2-next').disabled = (n===0);
+}
+
+document.getElementById('btn-2-next').addEventListener('click', ()=>{
+  renderReview();
+  goStep(3);
+});
+
+// resize helper
+function resizeImage(file, maxDim, quality){
+  return new Promise((resolve,reject)=>{
+    const reader = new FileReader();
+    reader.onload = e=>{
+      const img = new Image();
+      img.onload = ()=>{
+        let w = img.width, h = img.height;
+        if(w>h && w>maxDim){ h = Math.round(h*maxDim/w); w = maxDim; }
+        else if(h>=w && h>maxDim){ w = Math.round(w*maxDim/h); h = maxDim; }
+        const canvas = document.createElement('canvas');
+        canvas.width=w; canvas.height=h;
+        canvas.getContext('2d').drawImage(img,0,0,w,h);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      };
+      img.onerror = reject;
+      img.src = e.target.result;
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+// ---------- STEP 3 : review ----------
+function renderReview(){
+  const c = state.customer;
+  document.getElementById('rev-customer').innerHTML = `
+    <div class="rev-row"><span class="k">성함</span><span class="v">${escapeHtml(c.name)}</span></div>
+    <div class="rev-row"><span class="k">Email</span><span class="v">${escapeHtml(c.email)}</span></div>
+    <div class="rev-row"><span class="k">전화번호</span><span class="v">${escapeHtml(c.phone)}</span></div>
+    <div class="rev-row"><span class="k">출발지 ZIP</span><span class="v">${escapeHtml(c.zip)}</span></div>
+    <div class="rev-row"><span class="k">도착지역</span><span class="v">${escapeHtml(c.dest)}</span></div>
+  `;
+  document.getElementById('rev-count').textContent = state.items.length;
+  const list = document.getElementById('rev-items');
+  list.innerHTML = state.items.map(it=>{
+    const cat = findCat(it.catId);
+    const isQty = cat?.mode==='qty';
+    const iconInner = it.photo
+      ? `<img src="${it.photo}">`
+      : `<div class="rev-icon-wrap">${svgIcon(cat?.icon || 'package', cat?.size)}</div>`;
+    const subLine = it.note ? escapeHtml(it.note) : '';
+    const rightCol = isQty
+      ? `<div class="cuft qty-col">×${it.qty}</div>`
+      : (()=>{ const r=cbmRange(effectiveCbm(it, cat)); return `<div class="cuft">${r.low} ~ ${r.high} cbm</div>`; })();
+    return `
+    <div class="item-row">
+      ${iconInner}
+      <div class="info">
+        <div class="n">${escapeHtml(it.label)}</div>
+        <div class="m">${subLine}</div>
+      </div>
+      ${rightCol}
+    </div>
+  `;
+  }).join('');
+}
+
+document.getElementById('btn-3-back').addEventListener('click', ()=> goStep(2));
+document.getElementById('btn-3-next').addEventListener('click', async ()=>{
+  const id = await submitQuote();
+  document.getElementById('quote-id').textContent = id;
+  goStep(4);
+});
+
+document.getElementById('btn-done').addEventListener('click', ()=>{
+  document.querySelector('.app').innerHTML = `
+    <div style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px;text-align:center;background:var(--cream);">
+      <div style="font-size:32px;margin-bottom:12px;">✅</div>
+      <div style="font-family:Georgia,serif;font-size:20px;color:var(--navy);margin-bottom:8px;">접수가 완료됐습니다</div>
+      <div style="font-size:13.5px;color:var(--muted);">이용해 주셔서 감사합니다.</div>
+    </div>
+  `;
+});
+
+// ---------- STEP 4 : submit ----------
+async function shrinkForEmail(dataUrl, maxDim, quality){
+  if(!dataUrl) return null;
+  return new Promise((resolve)=>{
+    const img = new Image();
+    img.onload = ()=>{
+      let w = img.width, h = img.height;
+      if(w>h && w>maxDim){ h = Math.round(h*maxDim/w); w = maxDim; }
+      else if(h>=w && h>maxDim){ w = Math.round(w*maxDim/h); h = maxDim; }
+      const canvas = document.createElement('canvas');
+      canvas.width=w; canvas.height=h;
+      canvas.getContext('2d').drawImage(img,0,0,w,h);
+      resolve(canvas.toDataURL('image/jpeg', quality));
+    };
+    img.onerror = ()=>resolve(null);
+    img.src = dataUrl;
+  });
+}
+
+async function submitQuote(){
+  const now = new Date();
+  const id = 'HD-' + now.toISOString().slice(0,10).replace(/-/g,'') + '-' + Math.floor(1000+Math.random()*9000);
+  const lineFor = (it)=>{
+    const cat = findCat(it.catId);
+    if(cat?.mode==='qty') return `- ${it.label}: 수량 ${it.qty}개`;
+    const r = cbmRange(effectiveCbm(it, cat));
+    return `- ${it.label}: 약 ${r.low} ~ ${r.high} cbm${it.note ? ' ('+it.note+')' : ''}`;
+  };
+  const record = {
+    id, submittedAt: now.toISOString(),
+    customer: state.customer,
+    items: state.items.map(it=>{
+      const cat = findCat(it.catId);
+      return cat?.mode==='qty'
+        ? {label:it.label, qty:it.qty}
+        : {label:it.label, cbmRange:cbmRange(effectiveCbm(it, cat)), note:it.note, photo:it.photo};
+    })
+  };
+  try{
+    await window.storage.set('quote:'+id, JSON.stringify(record), true);
+  }catch(err){
+    console.error('storage save failed', err);
+  }
+
+  const statusEl = document.getElementById('submit-status');
+
+  // build item list (text + html-with-photo) for the auto email
+  const itemsText = state.items.map(lineFor).join('\n');
+  const rowsHtml = await Promise.all(state.items.map(async (it)=>{
+    const cat = findCat(it.catId);
+    if(cat?.mode==='qty'){
+      return `<tr><td colspan="2" style="padding:6px 0;font-size:13px;">· ${escapeHtml(it.label)} — 수량 ${it.qty}개</td></tr>`;
+    }
+    const r = cbmRange(effectiveCbm(it, cat));
+    const thumb = await shrinkForEmail(it.photo, 160, 0.55);
+    const img = thumb ? `<img src="${thumb}" width="60" height="60" style="border-radius:6px;object-fit:cover;">` : '';
+    return `<tr>
+      <td style="padding:6px 8px 6px 0;">${img}</td>
+      <td style="padding:6px 0;font-size:13px;">${escapeHtml(it.label)}<br><span style="color:#888;">${r.low} ~ ${r.high} cbm${it.note?' · '+escapeHtml(it.note):''}</span></td>
+    </tr>`;
+  }));
+  const itemsHtml = `<table cellpadding="0" cellspacing="0">${rowsHtml.join('')}</table>`;
+
+  const templateParams = {
+    to_email: 'RICKY@CYHDS.COM',
+    quote_id: id,
+    customer_name: state.customer.name,
+    customer_email: state.customer.email,
+    customer_phone: state.customer.phone,
+    customer_zip: state.customer.zip,
+    customer_dest: state.customer.dest,
+    item_count: state.items.length,
+    items_text: itemsText,
+    items_html: itemsHtml,
+  };
+
+  let staffOk = false, customerOk = null; // null = not attempted (template not configured)
+
+  if(EMAILJS_PUBLIC_KEY && EMAILJS_SERVICE_ID && EMAILJS_TEMPLATE_ID && window.emailjs){
+    try{
+      await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams);
+      staffOk = true;
+    }catch(err){
+      console.error('staff email send failed', err);
+    }
+  }
+
+  if(EMAILJS_PUBLIC_KEY && EMAILJS_SERVICE_ID && EMAILJS_CUSTOMER_TEMPLATE_ID && window.emailjs && state.customer.email){
+    customerOk = false;
+    try{
+      const customerParams = {
+        to_email: state.customer.email,
+        customer_name: state.customer.name,
+        quote_id: id,
+        item_count: state.items.length,
+      };
+      await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_CUSTOMER_TEMPLATE_ID, customerParams);
+      customerOk = true;
+    }catch(err){
+      console.error('customer email send failed', err);
+    }
+  }
+
+  if(!EMAILJS_PUBLIC_KEY || !EMAILJS_SERVICE_ID || !EMAILJS_TEMPLATE_ID){
+    statusEl.textContent = '접수 내용이 저장됐어요. (이메일 자동발송 설정이 아직 연결되지 않았어요)';
+  }else if(staffOk && customerOk===true){
+    statusEl.textContent = '담당자와 고객님 이메일로 모두 자동 전송됐어요.';
+  }else if(staffOk && customerOk===null){
+    statusEl.textContent = '담당자에게 자동으로 전송됐어요. (고객 확인메일은 아직 설정 전이에요)';
+  }else if(staffOk && customerOk===false){
+    statusEl.textContent = '담당자에게는 전송됐어요. 고객 확인메일 전송에는 실패했어요.';
+  }else{
+    statusEl.textContent = '자동 전송에 실패했어요. 아래 연락처로 문의해 주세요.';
+  }
+
+  return id;
+}
+
+function escapeHtml(s){
+  return String(s||'').replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+</script>
+</body>
+</html>
