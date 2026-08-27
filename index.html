@@ -83,6 +83,7 @@
   .field input{
     width:100%;padding:13px 14px;border-radius:10px;border:1.5px solid var(--line);
     font-size:15.5px;background:var(--paper);color:var(--ink);
+    scroll-margin-top:90px;scroll-margin-bottom:130px;
   }
   .field input:focus{outline:none;border-color:var(--navy-2);}
   .field.error input{border-color:var(--danger);background:#fdf3f2;}
@@ -100,7 +101,7 @@
   .bottom-bar{
     position:fixed;bottom:0;left:0;right:0;
     max-width:480px;margin:0 auto;background:linear-gradient(180deg,rgba(250,246,239,0),var(--cream) 30%);
-    padding:18px 20px 20px;
+    padding:18px 20px 20px;transition:transform .15s ease-out;
   }
 
   .banner{background:#fdf3f2;border:1px solid #f2c9c2;color:var(--danger);font-size:13px;padding:10px 12px;border-radius:10px;margin-bottom:16px;display:none;}
@@ -433,6 +434,27 @@
 </div>
 
 <script>
+// Keep the fixed bottom bar glued right above the mobile keyboard, and make sure
+// the focused input scrolls into a visible spot (fixes: input hidden behind keyboard).
+if(window.visualViewport){
+  const adjustForKeyboard = ()=>{
+    const vv = window.visualViewport;
+    const covered = window.innerHeight - vv.height - vv.offsetTop;
+    document.querySelectorAll('.bottom-bar').forEach(bar=>{
+      bar.style.transform = covered > 40 ? `translateY(-${covered}px)` : '';
+    });
+  };
+  window.visualViewport.addEventListener('resize', adjustForKeyboard);
+  window.visualViewport.addEventListener('scroll', adjustForKeyboard);
+}
+document.addEventListener('focusin', (e)=>{
+  if(e.target.matches('input, textarea')){
+    setTimeout(()=>{
+      e.target.scrollIntoView({block:'center', behavior:'smooth'});
+    }, 250);
+  }
+});
+
 // ===== EmailJS 설정 =====
 // https://www.emailjs.com 에서 무료 가입 후, 아래 3개 값을 채워 넣어야
 // 4페이지 도착 시 RICKY@CYHDS.COM 으로 자동 이메일이 발송됩니다.
@@ -737,6 +759,77 @@ const DIM_DATA = {
   '스타일러': {w:18, d:24, h:73, realcbm:0.811, qty:1, loadcbm:1.047},
   '세탁기': {w:24, d:26, h:44, realcbm:0.706, qty:1, loadcbm:1.144},
   '건조기': {w:24, d:26, h:44, realcbm:0.706, qty:1, loadcbm:1.144},
+};
+const FORMULA_DATA = {
+  '장식장소': {w:30, d:16, h:42, mult:1.29, ea:1},
+  '소파테이블': {w:39, d:20, h:16, mult:1.29, ea:1},
+  '전자피아노': {w:53, d:14, h:31, mult:1.29, ea:1},
+  '장식장중': {w:35, d:16, h:47, mult:1.29, ea:1},
+  '스탠딩에어컨': {w:22, d:22, h:71, mult:1.29, ea:1},
+  '마사지안마의자': {w:30, d:46, h:44, mult:1.29, ea:1},
+  '장식장대': {w:47, d:18, h:59, mult:1.29, ea:1},
+  '소파옆협탁': {w:20, d:22, h:24, mult:1.44, ea:1},
+  '런닝머신': {w:28, d:59, h:33, mult:1.09, ea:1},
+  '서랍장3단': {w:40, d:18, h:28, mult:1.59, ea:1},
+  '커피테이블': {w:44, d:22, h:17, mult:1.71, ea:1},
+  '흔들의자': {w:28, d:35, h:39, mult:1.29, ea:1},
+  '서랍장5단': {w:31, d:18, h:43, mult:1.59, ea:1},
+  'upright피아노': {w:59, d:24, h:47, mult:1.78, ea:1},
+  '콘솔': {w:47, d:16, h:31, mult:1.29, ea:1},
+  '에어컨벽걸이': {w:33, d:8, h:12, mult:3.29, ea:1},
+  '소파1인armchair': {w:35, d:35, h:33, mult:1.35, ea:1},
+  '그랜드피아노대': {w:59, d:79, h:40, mult:1.29, ea:1},
+  '소파2인loveseat': {w:59, d:35, h:33, mult:1.35, ea:1},
+  '그랜드피아노중': {w:59, d:69, h:39, mult:1.29, ea:1},
+  'tv65기준': {w:64, d:6, h:35, mult:1.47, ea:1},
+  '소파3인': {w:83, d:35, h:33, mult:1.35, ea:1},
+  '베이비그랜드피아노': {w:59, d:59, h:39, mult:1.29, ea:1},
+  'tv캐비닛': {w:59, d:16, h:18, mult:1.62, ea:1},
+  'ck침대': {w:72, d:84, h:23, mult:1.23, ea:1},
+  '돌침대': {w:59, d:79, h:23, mult:1.29, ea:1},
+  '협탁': {w:22, d:18, h:32, mult:1.33, ea:1},
+  'k침대': {w:70, d:78, h:23, mult:1.23, ea:1},
+  '아기침대crib': {w:28, d:51, h:39, mult:1.29, ea:1},
+  'q침대': {w:59, d:72, h:23, mult:1.23, ea:1},
+  '화장대': {w:39, d:18, h:55, mult:1.29, ea:1},
+  'd침대': {w:55, d:72, h:23, mult:1.23, ea:1},
+  's침대': {w:43, d:72, h:23, mult:1.23, ea:1},
+  '문갑': {w:35, d:16, h:44, mult:1.29, ea:1},
+  '이층침대': {w:39, d:79, h:48, mult:1.23, ea:1},
+  '고가구코너장': {w:28, d:28, h:59, mult:1.29, ea:1},
+  '고가구문갑': {w:39, d:18, h:44, mult:1.29, ea:1},
+  '고가구궤짝': {w:35, d:20, h:34, mult:1.29, ea:1},
+  '책상중분해ox': {w:47, d:24, h:30, mult:1.29, ea:1},
+  '사무용의자': {w:24, d:24, h:43, mult:1.29, ea:1},
+  '장롱주니어장': {w:39, d:22, h:71, mult:1.29, ea:1},
+  '서재태이블': {w:47, d:24, h:30, mult:1.29, ea:1},
+  '책상대분해ox': {w:59, d:28, h:30, mult:1.29, ea:1},
+  '일반의자': {w:20, d:22, h:40, mult:1.29, ea:1},
+  'folding간이의자': {w:18, d:20, h:22, mult:1.11, ea:1},
+  '책장소': {w:24, d:12, h:35, mult:1.29, ea:1},
+  '책상용작은서랍장': {w:20, d:18, h:24, mult:1.41, ea:1},
+  '컴퓨터책상': {w:43, d:24, h:30, mult:1.29, ea:1},
+  '책장중': {w:31, d:14, h:47, mult:1.29, ea:1},
+  '책장대': {w:35, d:16, h:71, mult:1.29, ea:1},
+  '허리높이김치냉장고': {w:35, d:26, h:35, mult:1.29, ea:1},
+  '부페테이블': {w:59, d:18, h:31, mult:1.64, ea:1},
+  'standing김치냉장고': {w:24, d:28, h:71, mult:1.29, ea:1},
+  '그릇장': {w:35, d:18, h:71, mult:1.29, ea:1},
+  '식탁2인table': {w:28, d:28, h:12, mult:1.29, ea:1},
+  '양문형냉장고대형': {w:36, d:31, h:71, mult:1.29, ea:1},
+  '식탁4인table': {w:47, d:31, h:12, mult:1.29, ea:1},
+  '양문형냉장고중형': {w:33, d:30, h:69, mult:1.29, ea:1},
+  '식탁6인table': {w:59, d:35, h:12, mult:1.29, ea:1},
+  '일반형냉장고': {w:28, d:28, h:67, mult:1.29, ea:1},
+  '식탁8인table': {w:79, d:39, h:12, mult:1.29, ea:1},
+  '소형냉장고': {w:20, d:22, h:33, mult:1.29, ea:1},
+  '식탁2인chair': {w:18, d:20, h:33, mult:1.29, ea:2},
+  '식탁4인chair': {w:18, d:20, h:33, mult:1.29, ea:4},
+  '식탁6인chair': {w:18, d:20, h:33, mult:1.29, ea:6},
+  '식탁8인chair': {w:18, d:20, h:33, mult:1.29, ea:8},
+  '스타일러': {w:18, d:24, h:73, mult:1.29, ea:1},
+  '세탁기': {w:24, d:26, h:44, mult:1.62, ea:1},
+  '건조기': {w:24, d:26, h:44, mult:1.62, ea:1},
 };
 const QTY_LABELS = [
   '액자(대):72inch/Lx2','액자(중):36inch/M','액자(소):18inch/S','도자기','카페트/돗자리','장식품 (스탠딩)','조각','스피커',
@@ -1263,12 +1356,18 @@ async function submitQuote(){
     const cat = findCat(entries[0].catId);
     const count = entries.length;
     const dim = DIM_DATA[norm(cat.label)];
+    const fd = FORMULA_DATA[norm(cat.label)];
     const photoTag = entries.some(e=>e.cloudUrl || e.photo) ? '📷' : '-';
     const w = dim ? dim.w+'"' : '-';
     const d = dim ? dim.d+'"' : '-';
     const h = dim ? dim.h+'"' : '-';
-    const realTotal = dim ? (dim.realcbm*count).toFixed(3) : '-';
-    const loadTotal = dim ? (dim.loadcbm*count).toFixed(3) : '-';
+    const discount = (cat.needsAssembly && entries.some(e=>e.assembly==='O')) ? '*0.6' : '';
+    const realTotal = fd
+      ? `=(${fd.w}*${fd.d}*${fd.h}/1728/35.31*1.57)*${count}${discount}`
+      : (dim ? (dim.realcbm*count).toFixed(3) : '-');
+    const loadTotal = fd
+      ? `=(${fd.w}*${fd.d}*${fd.h}/1728/35.31*1.57)*${fd.mult}*${fd.ea}*${count}${discount}`
+      : (dim ? (dim.loadcbm*count).toFixed(3) : '-');
     const noteTxt = entries.some(e=>e.assembly) ? entries.map(e=>e.assembly?`(${e.assembly})`:'').join(' ') : '';
     return `<tr>
       <td style="padding:6px 8px;font-size:13px;text-align:center;">${photoTag}</td>
