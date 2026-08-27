@@ -876,6 +876,22 @@ function updateQty(cat, delta){
   updateBar2();
 }
 
+async function sendEmailWithRetry(serviceId, templateId, params, retries=4){
+  for(let attempt=0; attempt<=retries; attempt++){
+    try{
+      await emailjs.send(serviceId, templateId, params);
+      return true;
+    }catch(err){
+      console.error(`email send failed (attempt ${attempt+1}/${retries+1})`, err);
+      if(attempt < retries){
+        const delayMs = 1500 * (attempt + 1); // 1.5s, 3s, 4.5s, 6s — back off a bit more each time
+        await new Promise(r=>setTimeout(r, delayMs));
+      }
+    }
+  }
+  return false;
+}
+
 function cbmRange(base){
   const low = (base*0.7).toFixed(3);
   const high = (base*1.15).toFixed(3);
@@ -1356,18 +1372,13 @@ async function submitQuote(){
     const cat = findCat(entries[0].catId);
     const count = entries.length;
     const dim = DIM_DATA[norm(cat.label)];
-    const fd = FORMULA_DATA[norm(cat.label)];
     const photoTag = entries.some(e=>e.cloudUrl || e.photo) ? '📷' : '-';
     const w = dim ? dim.w+'"' : '-';
     const d = dim ? dim.d+'"' : '-';
     const h = dim ? dim.h+'"' : '-';
-    const discount = (cat.needsAssembly && entries.some(e=>e.assembly==='O')) ? '*0.6' : '';
-    const realTotal = fd
-      ? `=(${fd.w}*${fd.d}*${fd.h}/1728/35.31*1.57)*${count}${discount}`
-      : (dim ? (dim.realcbm*count).toFixed(3) : '-');
-    const loadTotal = fd
-      ? `=(${fd.w}*${fd.d}*${fd.h}/1728/35.31*1.57)*${fd.mult}*${fd.ea}*${count}${discount}`
-      : (dim ? (dim.loadcbm*count).toFixed(3) : '-');
+    const discount = (cat.needsAssembly && entries.some(e=>e.assembly==='O')) ? 0.6 : 1;
+    const realTotal = dim ? (dim.realcbm*count*discount).toFixed(3) : '-';
+    const loadTotal = dim ? (dim.loadcbm*count*discount).toFixed(3) : '-';
     const noteTxt = entries.some(e=>e.assembly) ? entries.map(e=>e.assembly?`(${e.assembly})`:'').join(' ') : '';
     return `<tr>
       <td style="padding:6px 8px;font-size:13px;text-align:center;">${photoTag}</td>
@@ -1420,28 +1431,17 @@ async function submitQuote(){
   let staffOk = false, customerOk = null;
 
   if(EMAILJS_PUBLIC_KEY && EMAILJS_SERVICE_ID && EMAILJS_TEMPLATE_ID && window.emailjs){
-    try{
-      await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams);
-      staffOk = true;
-    }catch(err){
-      console.error('staff email send failed', err);
-    }
+    staffOk = await sendEmailWithRetry(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams);
   }
 
   if(EMAILJS_PUBLIC_KEY && EMAILJS_SERVICE_ID && EMAILJS_CUSTOMER_TEMPLATE_ID && window.emailjs && state.customer.email){
-    customerOk = false;
-    try{
-      const customerParams = {
-        to_email: state.customer.email,
-        customer_name: state.customer.name,
-        quote_id: id,
-        item_count: state.items.length,
-      };
-      await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_CUSTOMER_TEMPLATE_ID, customerParams);
-      customerOk = true;
-    }catch(err){
-      console.error('customer email send failed', err);
-    }
+    const customerParams = {
+      to_email: state.customer.email,
+      customer_name: state.customer.name,
+      quote_id: id,
+      item_count: state.items.length,
+    };
+    customerOk = await sendEmailWithRetry(EMAILJS_SERVICE_ID, EMAILJS_CUSTOMER_TEMPLATE_ID, customerParams);
   }
 
   if(!EMAILJS_PUBLIC_KEY || !EMAILJS_SERVICE_ID || !EMAILJS_TEMPLATE_ID){
