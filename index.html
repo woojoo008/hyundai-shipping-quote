@@ -22,7 +22,7 @@
     font-size:16px;
   }
   *{box-sizing:border-box;}
-  html,body{margin:0;padding:0;}
+  html,body{margin:0;padding:0;overflow-x:hidden;width:100%;}
   body{
     background:var(--cream);
     color:var(--ink);
@@ -30,7 +30,7 @@
     -webkit-font-smoothing:antialiased;
     min-height:100vh;
   }
-  .app{max-width:480px;margin:0 auto;min-height:100vh;background:var(--cream);display:flex;flex-direction:column;}
+  .app{max-width:480px;width:100%;margin:0 auto;min-height:100vh;background:var(--cream);display:flex;flex-direction:column;overflow-x:hidden;}
 
   /* Header / brand */
   .brand{
@@ -43,10 +43,10 @@
   }
   .brand-text{min-width:0;}
   .brand-logo-badge{
-    flex-shrink:0;background:#fff;border-radius:10px;padding:7px 10px;
+    flex-shrink:0;background:#fff;border-radius:10px;padding:6px 9px;
     display:flex;align-items:center;position:relative;z-index:1;
   }
-  .brand-logo-badge img{display:block;height:44px;width:auto;}
+  .brand-logo-badge img{display:block;height:34px;width:auto;}
   .brand::after{
     content:"";
     position:absolute; right:-30px; top:-30px;
@@ -56,7 +56,7 @@
   .brand-name{font-size:13px;letter-spacing:.14em;color:#f0b48f;font-weight:600;text-transform:uppercase;}
   .brand-title{
     font-family:Georgia,"Times New Roman",serif;
-    font-size:22px;font-weight:700;margin-top:4px;letter-spacing:-.01em;
+    font-size:19px;font-weight:700;margin-top:4px;letter-spacing:-.01em;white-space:nowrap;
   }
   .brand-manager{font-size:12px;color:rgba(255,255,255,.7);margin-top:4px;text-decoration:none;display:inline-block;}
   .steps{display:flex;gap:6px;padding:14px 20px 0;background:var(--navy);}
@@ -211,6 +211,12 @@
 
 
   /* confirmation */
+  .submit-notice{
+    background:#fff;border:1px solid var(--line);border-radius:10px;
+    padding:12px 14px;margin-top:14px;font-size:12.5px;color:var(--navy-2);line-height:1.6;
+  }
+  .submit-notice div + div{margin-top:6px;}
+
   .stamp-wrap{display:flex;justify-content:center;margin:6px 0 26px;}
   .stamp{
     width:150px;height:150px;border-radius:50%;
@@ -367,6 +373,10 @@
     <div class="eyebrow">Step 4</div>
     <h1>접수가 완료되었습니다</h1>
     <div class="sub" id="submit-status">담당자에게 자동으로 전송 중이에요…</div>
+    <div class="submit-notice">
+      <div>1. 접수확인 이메일 발송 드렸으니 확인 가능 하세요. (스팸박스도 함께 꼭 확인해 주시기 바랍니다.)</div>
+      <div>2. 24시간 이내 정식 견적서를 이메일로 보내드리겠습니다. (주말 신청 시, 월요일까지 안내 드리겠습니다.)</div>
+    </div>
 
     <div class="stamp-wrap">
       <div class="stamp">
