@@ -156,6 +156,7 @@
     box-shadow:0 1px 2px rgba(20,20,20,.04);
     padding:14px 8px 12px;display:flex;flex-direction:column;align-items:center;
     text-align:center;cursor:pointer;position:relative;min-height:106px;justify-content:center;gap:8px;
+    min-width:0;box-sizing:border-box;
   }
   .item-card.qty-card{min-height:132px;cursor:default;}
   .item-card:active{transform:scale(.97);}
@@ -175,8 +176,8 @@
   .item-card.qty-card .icon svg.licon{color:#a39c8a;}
   .item-card.qty-card.active .icon svg.licon{color:var(--orange-dark);}
   .qty-stepper{
-    display:flex;align-items:center;justify-content:center;gap:12px;margin-top:4px;
-    background:#f4f1e9;border-radius:20px;padding:4px 8px;width:100%;
+    display:flex;align-items:center;justify-content:center;gap:8px;margin-top:4px;
+    background:#f4f1e9;border-radius:20px;padding:4px 6px;width:100%;box-sizing:border-box;min-width:0;
   }
   .qty-stepper .step{
     width:24px;height:24px;border-radius:50%;border:none;background:#fff;
