@@ -218,6 +218,9 @@
   /* review list */
   .rev-card{background:var(--paper);border:1.5px solid var(--line);border-radius:12px;padding:14px;margin-bottom:16px;}
   .rev-card h3{margin:0 0 10px;font-size:13px;color:var(--navy);text-transform:uppercase;letter-spacing:.06em;}
+  .rev-custom-photos{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px;}
+  .rev-custom-photos img{width:64px;height:64px;border-radius:8px;object-fit:cover;}
+  .rev-custom-note{font-size:13.5px;color:var(--ink);line-height:1.5;white-space:pre-wrap;}
   .rev-row{display:flex;justify-content:space-between;font-size:13.5px;padding:5px 0;border-bottom:1px dashed var(--line);}
   .rev-row:last-child{border-bottom:none;}
   .rev-row .k{color:var(--muted);}
@@ -360,8 +363,14 @@
     </div>
 
     <div class="rev-card">
-      <h3>촬영 물품 (<span id="rev-count">0</span>건)</h3>
+      <h3>선택하신 가구 및 생활잔짐</h3>
       <div id="rev-items"></div>
+    </div>
+
+    <div class="rev-card" id="rev-custom-card" style="display:none;">
+      <h3>직접입력</h3>
+      <div id="rev-custom-photos" class="rev-custom-photos"></div>
+      <div id="rev-custom-note" class="rev-custom-note"></div>
     </div>
   </div>
 
@@ -1360,7 +1369,6 @@ function renderReview(){
     <div class="rev-row"><span class="k">출발지 ZIP</span><span class="v">${escapeHtml(c.zip)}</span></div>
     <div class="rev-row"><span class="k">도착지역</span><span class="v">${escapeHtml(c.dest)}</span></div>
   `;
-  document.getElementById('rev-count').textContent = state.items.length;
   const list = document.getElementById('rev-items');
   list.innerHTML = state.items.map(it=>{
     const cat = findCat(it.catId);
@@ -1383,6 +1391,12 @@ function renderReview(){
     </div>
   `;
   }).join('');
+
+  const customPhotos = customSlots.filter(s=>s && s.photo);
+  const hasCustom = customPhotos.length > 0 || customNote.trim().length > 0;
+  document.getElementById('rev-custom-card').style.display = hasCustom ? 'block' : 'none';
+  document.getElementById('rev-custom-photos').innerHTML = customPhotos.map(s=>`<img src="${s.photo}">`).join('');
+  document.getElementById('rev-custom-note').textContent = customNote.trim();
 }
 
 document.getElementById('btn-3-back').addEventListener('click', ()=> goStep(2));
@@ -1468,6 +1482,9 @@ async function submitQuote(id){
     .filter(s=>s && s.photo)
     .map((s,i)=>({label:`직접입력 사진 ${i+1}`, photo:s.photo, cloudUrl:s.cloudUrl}));
   const galleryUrl = await uploadGalleryPage([...photoEntries, ...customPhotoEntries], id);
+  const customPhotosHtml = customPhotoEntries.length
+    ? customPhotoEntries.map((e,i)=> e.cloudUrl ? `<a href="${e.cloudUrl}" target="_blank">사진${i+1}보기</a>` : `사진${i+1}(업로드 실패)`).join(' &nbsp;·&nbsp; ')
+    : '(촬영된 사진 없음)';
 
   const photoRows = Object.values(groups).map((entries)=>{
     const cat = findCat(entries[0].catId);
@@ -1529,6 +1546,7 @@ async function submitQuote(id){
     gallery_url: galleryUrl || '(사진 업로드 실패 — 링크 없음)',
     special_note: customNote.trim() || '(작성된 내용 없음)',
     custom_photo_count: customPhotoEntries.length,
+    custom_photos_html: customPhotosHtml,
   };
 
   let staffOk = false;
