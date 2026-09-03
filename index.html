@@ -1491,9 +1491,9 @@ async function submitQuote(id){
     const count = entries.length;
     const dim = DIM_DATA[norm(cat.label)];
     const photoTag = entries.some(e=>e.cloudUrl || e.photo) ? '📷' : '-';
-    const w = dim ? dim.w+'"' : '-';
-    const d = dim ? dim.d+'"' : '-';
-    const h = dim ? dim.h+'"' : '-';
+    const w = dim ? dim.w : '-';
+    const d = dim ? dim.d : '-';
+    const h = dim ? dim.h : '-';
     const discount = (cat.needsAssembly && entries.some(e=>e.assembly==='O')) ? 0.6 : 1;
     const realTotal = dim ? (dim.realcbm*count*discount).toFixed(3) : '-';
     const loadTotal = dim ? (dim.loadcbm*count*discount).toFixed(3) : '-';
@@ -1513,9 +1513,9 @@ async function submitQuote(id){
     <tr style="background:#f1ede4;">
       <th style="padding:6px 8px;font-size:12px;text-align:left;">사진</th>
       <th style="padding:6px 8px;font-size:12px;text-align:left;">아이템</th>
-      <th style="padding:6px 8px;font-size:12px;">가로</th>
-      <th style="padding:6px 8px;font-size:12px;">세로</th>
-      <th style="padding:6px 8px;font-size:12px;">높이</th>
+      <th style="padding:6px 8px;font-size:12px;">가로(inch)</th>
+      <th style="padding:6px 8px;font-size:12px;">세로(inch)</th>
+      <th style="padding:6px 8px;font-size:12px;">높이(inch)</th>
       <th style="padding:6px 8px;font-size:12px;">실포장CBM</th>
       <th style="padding:6px 8px;font-size:12px;">수량</th>
       <th style="padding:6px 8px;font-size:12px;">적재CBM</th>
