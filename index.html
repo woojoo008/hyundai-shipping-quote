@@ -579,15 +579,15 @@ const SECTIONS = [
     {label:'장식장(소)', cbm:0.669, icon:'wardrobe', size:'sm'},
     {label:'장식장(중)', cbm:0.874, icon:'wardrobe', size:'md'},
     {label:'장식장(대)', cbm:1.657, icon:'wardrobe', size:'lg'},
-    {label:'서랍장(3단)', cbm:0.825, icon:'drawer-chest', size:'sm'},
-    {label:'서랍장(5단)', cbm:0.982, icon:'drawer-chest', size:'md'},
+    {label:'서랍장(3단)', cbm:0.907, icon:'drawer-chest', size:'sm'},
+    {label:'서랍장(5단)', cbm:1.236, icon:'drawer-chest', size:'md'},
     {label:'소파(1인:arm chair)', cbm:1.404, icon:'armchair', size:'sm'},
     {label:'소파(2인:love seat)', cbm:2.367, icon:'sofa', size:'md'},
-    {label:'소파(3인)', cbm:3.33, icon:'sofa', size:'lg'},
+    {label:'소파(3인)', cbm:3.157, icon:'sofa', size:'lg'},
     {label:'소파테이블', cbm:0.414, icon:'console-table'},
     {label:'스탠딩 에어컨', cbm:1.141, icon:'standing-ac'},
     {label:'소파옆 협탁', cbm:0.391, icon:'side-table'},
-    {label:'커피 테이블', cbm:0.724, icon:'coffee-table2'},
+    {label:'커피 테이블', cbm:0.874, icon:'coffee-table2'},
     {label:'그랜드피아노 (대)', cbm:6.189, icon:'piano', size:'xl'},
     {label:'그랜드피아노 (중)', cbm:5.27, icon:'piano', size:'lg'},
     {label:'베이비 그랜드피아노', cbm:4.506, icon:'piano', size:'lg'},
@@ -623,7 +623,7 @@ const SECTIONS = [
     {label:'고가구 (코너장)', cbm:1.535, icon:'corner-cabinet'},
     {label:'고가구 (문갑)', cbm:1.025, icon:'antique-chest'},
     {label:'고가구 (궤짝)', cbm:0.79, icon:'trunk'},
-    {label:'협탁', cbm:0.434, icon:'side-table'},
+    {label:'협탁', cbm:0.486, icon:'side-table'},
     {label:'옷 & 의류', icon:'shirt'},
     {label:'이불', icon:'duvet'},
     {label:'거울', icon:'mirror'},
@@ -728,10 +728,10 @@ const DIM_DATA = {
   '장식장대': {w:47, d:18, h:59, realcbm:1.284, qty:1, loadcbm:1.657},
   '소파옆협탁': {w:20, d:22, h:24, realcbm:0.272, qty:1, loadcbm:0.391},
   '런닝머신': {w:28, d:59, h:33, realcbm:1.403, qty:1, loadcbm:1.529},
-  '서랍장3단': {w:40, d:18, h:28, realcbm:0.519, qty:1, loadcbm:0.825},
-  '커피테이블': {w:44, d:22, h:17, realcbm:0.423, qty:1, loadcbm:0.724},
+  '서랍장3단': {w:44, d:18, h:28, realcbm:0.571, qty:1, loadcbm:0.907},
+  '커피테이블': {w:46, d:24, h:18, realcbm:0.511, qty:1, loadcbm:0.874},
   '흔들의자': {w:28, d:35, h:39, realcbm:0.983, qty:1, loadcbm:1.269},
-  '서랍장5단': {w:31, d:18, h:43, realcbm:0.617, qty:1, loadcbm:0.982},
+  '서랍장5단': {w:40, d:18, h:48, realcbm:0.889, qty:1, loadcbm:1.236},
   'upright피아노': {w:59, d:24, h:47, realcbm:1.712, qty:1, loadcbm:3.048},
   '콘솔': {w:47, d:16, h:31, realcbm:0.6, qty:1, loadcbm:0.774},
   '에어컨벽걸이': {w:33, d:8, h:12, realcbm:0.185, qty:1, loadcbm:0.61},
@@ -740,12 +740,12 @@ const DIM_DATA = {
   '소파2인loveseat': {w:59, d:35, h:33, realcbm:1.753, qty:1, loadcbm:2.367},
   '그랜드피아노중': {w:59, d:69, h:39, realcbm:4.085, qty:1, loadcbm:5.27},
   'tv65기준': {w:64, d:6, h:35, realcbm:0.346, qty:1, loadcbm:0.508},
-  '소파3인': {w:83, d:35, h:33, realcbm:2.467, qty:1, loadcbm:3.33},
+  '소파3인': {w:83, d:35, h:33, realcbm:2.467, qty:1, loadcbm:3.157},
   '베이비그랜드피아노': {w:59, d:59, h:39, realcbm:3.493, qty:1, loadcbm:4.506},
   'tv캐비닛': {w:59, d:16, h:18, realcbm:0.437, qty:1, loadcbm:0.708},
   'ck침대': {w:72, d:84, h:23, realcbm:3.579, qty:1, loadcbm:4.403},
   '돌침대': {w:59, d:79, h:23, realcbm:2.758, qty:1, loadcbm:3.558},
-  '협탁': {w:22, d:18, h:32, realcbm:0.326, qty:1, loadcbm:0.434},
+  '협탁': {w:22, d:18, h:32, realcbm:0.326, qty:1, loadcbm:0.486},
   'k침대': {w:70, d:78, h:23, realcbm:3.231, qty:1, loadcbm:3.975},
   '아기침대crib': {w:28, d:51, h:39, realcbm:1.433, qty:1, loadcbm:1.849},
   'q침대': {w:59, d:72, h:23, realcbm:2.514, qty:1, loadcbm:3.092},
@@ -799,10 +799,10 @@ const FORMULA_DATA = {
   '장식장대': {w:47, d:18, h:59, mult:1.29, ea:1},
   '소파옆협탁': {w:20, d:22, h:24, mult:1.44, ea:1},
   '런닝머신': {w:28, d:59, h:33, mult:1.09, ea:1},
-  '서랍장3단': {w:40, d:18, h:28, mult:1.59, ea:1},
-  '커피테이블': {w:44, d:22, h:17, mult:1.71, ea:1},
+  '서랍장3단': {w:44, d:18, h:28, mult:1.59, ea:1},
+  '커피테이블': {w:46, d:24, h:18, mult:1.71, ea:1},
   '흔들의자': {w:28, d:35, h:39, mult:1.29, ea:1},
-  '서랍장5단': {w:31, d:18, h:43, mult:1.59, ea:1},
+  '서랍장5단': {w:40, d:18, h:48, mult:1.39, ea:1},
   'upright피아노': {w:59, d:24, h:47, mult:1.78, ea:1},
   '콘솔': {w:47, d:16, h:31, mult:1.29, ea:1},
   '에어컨벽걸이': {w:33, d:8, h:12, mult:3.29, ea:1},
@@ -811,12 +811,12 @@ const FORMULA_DATA = {
   '소파2인loveseat': {w:59, d:35, h:33, mult:1.35, ea:1},
   '그랜드피아노중': {w:59, d:69, h:39, mult:1.29, ea:1},
   'tv65기준': {w:64, d:6, h:35, mult:1.47, ea:1},
-  '소파3인': {w:83, d:35, h:33, mult:1.35, ea:1},
+  '소파3인': {w:83, d:35, h:33, mult:1.28, ea:1},
   '베이비그랜드피아노': {w:59, d:59, h:39, mult:1.29, ea:1},
   'tv캐비닛': {w:59, d:16, h:18, mult:1.62, ea:1},
   'ck침대': {w:72, d:84, h:23, mult:1.23, ea:1},
   '돌침대': {w:59, d:79, h:23, mult:1.29, ea:1},
-  '협탁': {w:22, d:18, h:32, mult:1.33, ea:1},
+  '협탁': {w:22, d:18, h:32, mult:1.49, ea:1},
   'k침대': {w:70, d:78, h:23, mult:1.23, ea:1},
   '아기침대crib': {w:28, d:51, h:39, mult:1.29, ea:1},
   'q침대': {w:59, d:72, h:23, mult:1.23, ea:1},
@@ -868,6 +868,61 @@ const QTY_LABELS = [
   '전기히터','진공청소기','선풍기','PVC 박스','스키.스노보드','자전거','골프용품','볼링용품','인라인 스케이트','스케이트','킥보드','낚시용품','등산용품','병풍','재봉틀','항아리','청소도구','신발','욕실용품','캠핑장비',
 ];
 const QTY_SET = new Set(QTY_LABELS.map(norm));
+const SIZE_DATA = {
+  '도자기': 'S',
+  '카페트/돗자리': 'M',
+  '장식품스탠딩': 'S',
+  '조각': 'S',
+  '액자대72inch/lx2': 'M',
+  '스피커': 'S',
+  '액자중36inch/m': 'S',
+  '액자소18inch/s': 'S',
+  '램프': 'S',
+  '옷의류': 'M',
+  '전기장판': 'M',
+  '스탠드': 'S',
+  '가습기': 'S',
+  '이불': 'L',
+  '거울': 'S',
+  '책': 'S',
+  '문구류및잡화': 'S',
+  '컴퓨터': 'S',
+  'lpcddvd': 'S',
+  '서류및파일': 'S',
+  '프린터': 'S',
+  '레고figure': 'S',
+  '그릇': 'S',
+  '전자레인지': 'M',
+  '전기밥솥': 'S',
+  '정수기': 'S',
+  '커피머신': 'S',
+  '교자상': 'S',
+  '냄비': 'S',
+  '식기세척기': 'M',
+  '부엌잡화': 'S',
+  '식기건조기': 'M',
+  '주방기구': 'S',
+  'pvc박스': 'S',
+  '스케이트': 'S',
+  '항아리': 'S',
+  '스키스노보드': 'S',
+  '킥보드': 'M',
+  '청소도구': 'S',
+  '자전거': 'M',
+  '낚시용품': 'S',
+  '신발': 'M',
+  '전기히터': 'S',
+  '골프용품': 'S',
+  '등산용품': 'S',
+  '욕실용품': 'S',
+  '진공청소기': 'S',
+  '볼링용품': 'S',
+  '병풍': 'M',
+  '캠핑장비': 'S',
+  '선풍기': 'S',
+  '인라인스케이트': 'S',
+  '재봉틀': 'S',
+};
 SECTIONS.forEach(sec=>{
   sec.items.forEach(it=>{ it.mode = QTY_SET.has(norm(it.label)) ? 'qty' : 'photo'; });
 });
@@ -1525,11 +1580,34 @@ async function submitQuote(id){
 
   // ---- quantity-checked items (separate list, no photos/volume) ----
   const qtyEntries = state.items.filter(it => findCat(it.catId)?.mode === 'qty');
-  const qtyItemsHtml = qtyEntries.length
-    ? `<table cellpadding="0" cellspacing="0" style="border-collapse:collapse;width:100%;">
-        ${qtyEntries.map(it=>`<tr><td style="padding:5px 0;font-size:13px;">· ${escapeHtml(it.label)}</td><td style="padding:5px 0;font-size:13px;text-align:right;font-weight:bold;">${it.qty}개</td></tr>`).join('')}
-      </table>`
-    : '<p style="font-size:13px;color:#888;">수량체크 항목이 없습니다.</p>';
+  let qtyItemsHtml;
+  if(qtyEntries.length){
+    const totals = {L:0, M:0, S:0};
+    const rows = qtyEntries.map(it=>{
+      const size = SIZE_DATA[norm(it.label)] || 'S';
+      totals[size] += it.qty;
+      return `<tr>
+        <td style="padding:5px 8px;font-size:13px;">${escapeHtml(it.label)}</td>
+        <td style="padding:5px 8px;font-size:13px;text-align:center;">${size}</td>
+        <td style="padding:5px 8px;font-size:13px;text-align:right;font-weight:bold;">${it.qty}</td>
+      </tr>`;
+    }).join('');
+    qtyItemsHtml = `<table cellpadding="0" cellspacing="0" style="border-collapse:collapse;width:100%;margin-bottom:14px;">
+      <tr style="background:#f1ede4;">
+        <th style="padding:6px 8px;font-size:12px;text-align:left;">아이템</th>
+        <th style="padding:6px 8px;font-size:12px;">사이즈</th>
+        <th style="padding:6px 8px;font-size:12px;text-align:right;">개수</th>
+      </tr>
+      ${rows}
+    </table>
+    <table cellpadding="0" cellspacing="0" style="border-collapse:collapse;">
+      <tr><td style="padding:4px 20px 4px 8px;font-size:13px;">LARGE BOX</td><td style="padding:4px 8px;font-size:13px;font-weight:bold;text-align:right;">${totals.L}</td></tr>
+      <tr><td style="padding:4px 20px 4px 8px;font-size:13px;">MEDIUM BOX</td><td style="padding:4px 8px;font-size:13px;font-weight:bold;text-align:right;">${totals.M}</td></tr>
+      <tr><td style="padding:4px 20px 4px 8px;font-size:13px;">SMALL BOX</td><td style="padding:4px 8px;font-size:13px;font-weight:bold;text-align:right;">${totals.S}</td></tr>
+    </table>`;
+  }else{
+    qtyItemsHtml = '<p style="font-size:13px;color:#888;">수량체크 항목이 없습니다.</p>';
+  }
 
   const templateParams = {
     to_email: 'RICKY@CYHDS.COM',
